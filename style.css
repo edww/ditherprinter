@@ -88,6 +88,7 @@ h2 { font-size: 20px; }
   background-size: 22px 22px;
   background-position: 0 0, 0 11px, 11px -11px, -11px 0;
 }
+.empty-state[hidden] { display: none; }
 .empty-state span { max-width: 270px; color: var(--muted); font-size: 12px; line-height: 1.45; }
 .empty-icon { font-size: 44px; }
 .preview-meta {
