@@ -82,15 +82,15 @@
   function buildRequest(printCanvas) {
     const raster = canvasToRasterBase64(printCanvas);
     return [
-      '<root>',
+      '<StarWebPrint>',
       '<initialization/>',
       '<alignment position="center"/>',
       '<text width="2" height="2">DITHER PRINTER TEST\n</text>',
       '<text>Connexion webPRNT OK\n\n</text>',
-      `<bitimage width="${printCanvas.width}" height="${printCanvas.height}">${raster}</bitimage>`,
+      `<bitImage x="${printCanvas.width}" y="${printCanvas.height}">${raster}</bitImage>`,
       '<feed line="2"/>',
       '<cutpaper feed="true" type="partial"/>',
-      '</root>'
+      '</StarWebPrint>'
     ].join('');
   }
 
