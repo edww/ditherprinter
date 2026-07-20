@@ -95,11 +95,21 @@
   }
 
   function parsePrinterResponse(text) {
-    const xml = new DOMParser().parseFromString(text, 'application/xml');
+    const outerXml = new DOMParser().parseFromString(text, 'application/xml');
+    const responseNode = outerXml.querySelector('Response');
+    const innerText = responseNode?.textContent?.trim();
+    const xml = innerText
+      ? new DOMParser().parseFromString(innerText, 'application/xml')
+      : outerXml;
+
     const successText = xml.querySelector('success')?.textContent?.trim().toLowerCase();
-    const traderSuccess = xml.documentElement?.getAttribute('TraderSuccess')?.toLowerCase();
-    const code = xml.querySelector('code')?.textContent?.trim() || xml.documentElement?.getAttribute('TraderCode') || '';
-    const printerStatus = xml.querySelector('status')?.textContent?.trim() || xml.documentElement?.getAttribute('Status') || '';
+    const traderSuccess = outerXml.documentElement?.getAttribute('TraderSuccess')?.toLowerCase();
+    const code = xml.querySelector('code')?.textContent?.trim()
+      || outerXml.documentElement?.getAttribute('TraderCode')
+      || '';
+    const printerStatus = xml.querySelector('status')?.textContent?.trim()
+      || outerXml.documentElement?.getAttribute('Status')
+      || '';
     const success = successText === 'true' || traderSuccess === 'true';
     return { success, code, printerStatus };
   }
