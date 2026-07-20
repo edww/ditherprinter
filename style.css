@@ -132,7 +132,7 @@ h2 { font-size: 20px; }
   letter-spacing: .08em;
 }
 
-.panel {
+.panel, .printer-panel {
   position: relative;
   z-index: 6;
   padding: 18px;
@@ -141,7 +141,8 @@ h2 { font-size: 20px; }
   background: rgba(255,253,247,.94);
   backdrop-filter: blur(16px);
 }
-#modeCount { color: var(--muted); font-size: 11px; }
+.printer-panel { margin-top: 14px; }
+#modeCount, #printerStatus { color: var(--muted); font-size: 11px; }
 .mode-list {
   display: flex;
   gap: 8px;
@@ -166,6 +167,30 @@ h2 { font-size: 20px; }
 .control-row label { width: 78px; font-size: 11px; font-weight: 700; }
 .control-row input { flex: 1; accent-color: var(--ink); }
 .control-row output { width: 42px; text-align: right; color: var(--muted); font-size: 10px; }
+
+.printer-address { display: grid; gap: 7px; margin-top: 18px; }
+.printer-address span { font-size: 11px; font-weight: 800; }
+.printer-address input {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 13px;
+  border: 1px solid var(--ink);
+  border-radius: 10px;
+  background: white;
+  color: var(--ink);
+  font-size: 16px;
+}
+.printer-help { margin: 10px 0 14px; color: var(--muted); font-size: 10px; line-height: 1.45; }
+.print-action {
+  width: 100%;
+  min-height: 54px;
+  border: 1px solid var(--ink);
+  border-radius: 12px;
+  background: var(--ink);
+  color: white;
+  font-weight: 800;
+}
+.print-action:disabled { opacity: .35; }
 
 .action-bar { gap: 10px; margin-top: 14px; }
 .action-bar button {
