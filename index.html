@@ -20,19 +20,6 @@
       <button id="resetBtn" class="icon-button" type="button" aria-label="Réinitialiser">↺</button>
     </header>
 
-    <section class="preview-card">
-      <canvas id="previewCanvas" aria-label="Aperçu noir et blanc"></canvas>
-      <div id="emptyState" class="empty-state">
-        <div class="empty-icon">◫</div>
-        <strong>Ajoute une image</strong>
-        <span>Elle sera convertie en noir et blanc pur.</span>
-      </div>
-      <div class="preview-meta">
-        <span id="modeBadge">SEUIL</span>
-        <span id="sizeBadge">— × —</span>
-      </div>
-    </section>
-
     <section class="source-grid" aria-label="Choisir une source">
       <label class="source-button primary">
         <span class="source-icon">●</span>
@@ -44,6 +31,19 @@
         <span><strong>Bibliothèque</strong><small>Choisir une photo</small></span>
         <input id="libraryInput" type="file" accept="image/*">
       </label>
+    </section>
+
+    <section class="preview-card">
+      <canvas id="previewCanvas" aria-label="Aperçu noir et blanc"></canvas>
+      <div id="emptyState" class="empty-state">
+        <div class="empty-icon">◫</div>
+        <strong>Ajoute une image</strong>
+        <span>Elle sera convertie en noir et blanc pur.</span>
+      </div>
+      <div class="preview-meta">
+        <span id="modeBadge">SEUIL</span>
+        <span id="sizeBadge">— × —</span>
+      </div>
     </section>
 
     <section class="panel">
