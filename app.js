@@ -293,20 +293,33 @@ document.querySelector('#invertBtn').addEventListener('click', () => {
 
 document.querySelector('#resetBtn').addEventListener('click', reset);
 
-downloadBtn.addEventListener('click', () => {
+downloadBtn.addEventListener('click', event => {
+  event.preventDefault();
   if (!state.image) return;
   canvas.toBlob(blob => {
     if (!blob) return;
     const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
+    const objectUrl = URL.createObjectURL(blob);
+    link.href = objectUrl;
     link.download = `dither-printer-${state.mode}.png`;
+    document.body.appendChild(link);
     link.click();
-    setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(objectUrl), 1500);
   }, 'image/png');
 });
 
 updateLabels();
 
+// L'application doit toujours charger la version réseau la plus récente.
+// L'adresse IP de l'imprimante reste mémorisée séparément dans localStorage.
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
+  window.addEventListener('load', async () => {
+    const registrations = await navigator.serviceWorker.getRegistrations();
+    await Promise.all(registrations.map(registration => registration.unregister()));
+    if ('caches' in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map(key => caches.delete(key)));
+    }
+  });
 }
