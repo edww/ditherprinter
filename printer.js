@@ -6,22 +6,36 @@
 
   if (!canvas || !ipInput || !printBtn || !status) return;
 
-  ipInput.value = localStorage.getItem('ditherPrinter.starIp') || '';
+  const storageKey = 'ditherPrinter.starIp';
+  ipInput.value = localStorage.getItem(storageKey) || '';
+
+  function normalizedIp() {
+    return ipInput.value.trim().replace(/,/g, '.');
+  }
+
+  function saveIp() {
+    const value = normalizedIp();
+    if (ipInput.value !== value) ipInput.value = value;
+    localStorage.setItem(storageKey, value);
+  }
 
   function isReady() {
-    return canvas.width > 0 && canvas.height > 0 && ipInput.value.trim().length > 0;
+    return canvas.width > 0 && canvas.height > 0 && normalizedIp().length > 0;
   }
 
   function updateButton() {
     printBtn.disabled = !isReady();
-    if (!ipInput.value.trim()) status.textContent = 'Non configurée';
+    if (!normalizedIp()) status.textContent = 'Non configurée';
     else if (status.dataset.busy !== 'true') status.textContent = 'Prête';
   }
 
   ipInput.addEventListener('input', () => {
-    localStorage.setItem('ditherPrinter.starIp', ipInput.value.trim());
+    saveIp();
     updateButton();
   });
+
+  ipInput.addEventListener('change', saveIp);
+  ipInput.addEventListener('blur', saveIp);
 
   const canvasObserver = new MutationObserver(updateButton);
   canvasObserver.observe(canvas, { attributes: true, attributeFilter: ['width', 'height'] });
@@ -94,6 +108,7 @@
 
   printBtn.addEventListener('click', async () => {
     if (!isReady()) return;
+    saveIp();
     status.dataset.busy = 'true';
     status.textContent = 'Envoi…';
     printBtn.disabled = true;
@@ -101,7 +116,7 @@
     try {
       const printCanvas = fitForPrinter(canvas);
       const request = buildRequest(printCanvas);
-      await sendWebPrnt(ipInput.value.trim(), request);
+      await sendWebPrnt(normalizedIp(), request);
       status.textContent = 'Imprimé';
     } catch (error) {
       console.error(error);
