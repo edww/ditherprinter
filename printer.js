@@ -2,9 +2,16 @@
   const canvas = document.querySelector('#previewCanvas');
   const ipInput = document.querySelector('#printerIp');
   const printBtn = document.querySelector('#printBtn');
+  const testBtn = document.querySelector('#testPrinterBtn');
   const status = document.querySelector('#printerStatus');
+  const debugPanel = document.querySelector('#printerDebug');
+  const debugHttp = document.querySelector('#debugHttp');
+  const debugSuccess = document.querySelector('#debugSuccess');
+  const debugCode = document.querySelector('#debugCode');
+  const debugStatus = document.querySelector('#debugStatus');
+  const debugRaw = document.querySelector('#debugRaw');
 
-  if (!canvas || !ipInput || !printBtn || !status) return;
+  if (!canvas || !ipInput || !printBtn || !testBtn || !status) return;
 
   const storageKey = 'ditherPrinter.starIp';
   ipInput.value = localStorage.getItem(storageKey) || '';
@@ -19,29 +26,38 @@
     localStorage.setItem(storageKey, value);
   }
 
-  function isReady() {
-    return canvas.width > 0 && canvas.height > 0 && normalizedIp().length > 0;
+  function hasIp() {
+    return normalizedIp().length > 0;
   }
 
-  function updateButton() {
-    printBtn.disabled = !isReady();
-    if (!normalizedIp()) status.textContent = 'Non configurée';
-    else if (status.dataset.busy !== 'true' && !status.dataset.result) status.textContent = 'Prête';
+  function hasImage() {
+    return canvas.width > 0 && canvas.height > 0;
+  }
+
+  function updateButtons() {
+    const busy = status.dataset.busy === 'true';
+    testBtn.disabled = !hasIp() || busy;
+    printBtn.disabled = !hasIp() || !hasImage() || busy;
+    if (!hasIp()) status.textContent = 'Non configurée';
+    else if (!busy && !status.dataset.result) status.textContent = 'Prête';
+  }
+
+  function resetResult() {
+    delete status.dataset.result;
+    updateButtons();
   }
 
   ipInput.addEventListener('input', () => {
     saveIp();
-    delete status.dataset.result;
-    updateButton();
+    resetResult();
   });
   ipInput.addEventListener('change', saveIp);
   ipInput.addEventListener('blur', saveIp);
 
-  const canvasObserver = new MutationObserver(() => {
-    delete status.dataset.result;
-    updateButton();
+  new MutationObserver(resetResult).observe(canvas, {
+    attributes: true,
+    attributeFilter: ['width', 'height']
   });
-  canvasObserver.observe(canvas, { attributes: true, attributeFilter: ['width', 'height'] });
 
   function fitForPrinter(source, maxWidth = 576, maxHeight = 2200) {
     const scale = Math.min(1, maxWidth / source.width, maxHeight / source.height);
@@ -79,14 +95,27 @@
     return btoa(binary);
   }
 
-  function buildRequest(printCanvas) {
+  function buildTestRequest() {
+    const timestamp = new Date().toLocaleString('fr-FR');
+    return [
+      '<StarWebPrint>',
+      '<initialization/>',
+      '<alignment position="center"/>',
+      '<text width="2" height="2">DITHER PRINTER\n</text>',
+      '<text>TEST WEBPRNT OK\n</text>',
+      `<text>${timestamp}\n</text>`,
+      '<feed line="2"/>',
+      '<cutpaper feed="true" type="partial"/>',
+      '</StarWebPrint>'
+    ].join('');
+  }
+
+  function buildImageRequest(printCanvas) {
     const raster = canvasToRasterBase64(printCanvas);
     return [
       '<StarWebPrint>',
       '<initialization/>',
       '<alignment position="center"/>',
-      '<text width="2" height="2">DITHER PRINTER TEST\n</text>',
-      '<text>Connexion webPRNT OK\n\n</text>',
       `<bitImage x="${printCanvas.width}" y="${printCanvas.height}">${raster}</bitImage>`,
       '<feed line="2"/>',
       '<cutpaper feed="true" type="partial"/>',
@@ -94,24 +123,44 @@
     ].join('');
   }
 
-  function parsePrinterResponse(text) {
-    const outerXml = new DOMParser().parseFromString(text, 'application/xml');
-    const responseNode = outerXml.querySelector('Response');
-    const innerText = responseNode?.textContent?.trim();
-    const xml = innerText
-      ? new DOMParser().parseFromString(innerText, 'application/xml')
-      : outerXml;
+  function firstByLocalName(xml, name) {
+    return xml.getElementsByTagNameNS('*', name)[0]
+      || xml.getElementsByTagName(name)[0]
+      || null;
+  }
 
-    const successText = xml.querySelector('success')?.textContent?.trim().toLowerCase();
-    const traderSuccess = outerXml.documentElement?.getAttribute('TraderSuccess')?.toLowerCase();
-    const code = xml.querySelector('code')?.textContent?.trim()
+  function parsePrinterResponse(text) {
+    const parser = new DOMParser();
+    const outerXml = parser.parseFromString(text, 'application/xml');
+    const responseNode = firstByLocalName(outerXml, 'Response');
+    const innerText = responseNode?.textContent?.trim() || '';
+    const innerXml = innerText ? parser.parseFromString(innerText, 'application/xml') : outerXml;
+
+    const successText = firstByLocalName(innerXml, 'success')?.textContent?.trim().toLowerCase() || '';
+    const code = firstByLocalName(innerXml, 'code')?.textContent?.trim()
       || outerXml.documentElement?.getAttribute('TraderCode')
       || '';
-    const printerStatus = xml.querySelector('status')?.textContent?.trim()
+    const printerStatus = firstByLocalName(innerXml, 'status')?.textContent?.trim()
       || outerXml.documentElement?.getAttribute('Status')
       || '';
-    const success = successText === 'true' || traderSuccess === 'true';
-    return { success, code, printerStatus };
+    const traderSuccess = outerXml.documentElement?.getAttribute('TraderSuccess')?.toLowerCase() || '';
+
+    return {
+      success: successText === 'true' || traderSuccess === 'true',
+      code,
+      printerStatus,
+      innerText
+    };
+  }
+
+  function showDebug({ httpStatus = '—', result = {}, raw = '' }) {
+    if (!debugPanel) return;
+    debugPanel.hidden = false;
+    debugHttp.textContent = String(httpStatus);
+    debugSuccess.textContent = result.success === true ? 'true' : result.success === false ? 'false' : '—';
+    debugCode.textContent = result.code || '—';
+    debugStatus.textContent = result.printerStatus || '—';
+    debugRaw.textContent = result.innerText || raw || '(réponse vide)';
   }
 
   async function sendWebPrnt(ip, request) {
@@ -136,52 +185,54 @@
       });
 
       const text = await response.text();
-      const contentType = response.headers.get('content-type') || 'inconnu';
-      if (!response.ok) throw new Error(`HTTP ${response.status} — ${text.slice(0, 220)}`);
-
       const result = parsePrinterResponse(text);
-      if (!result.success) {
-        const preview = text.replace(/\s+/g, ' ').trim().slice(0, 260) || '(réponse vide)';
-        throw new Error(`Réponse inattendue [${contentType}] : ${preview}`);
-      }
-      if (result.code && result.code !== '0') {
-        throw new Error(`webPRNT code ${result.code}${result.printerStatus ? ` — ${result.printerStatus}` : ''}`);
-      }
+      showDebug({ httpStatus: response.status, result, raw: text });
+
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      if (!result.success) throw new Error('Réponse webPRNT sans succès');
+      if (result.code && result.code !== '0') throw new Error(`webPRNT code ${result.code}`);
       return result;
     } finally {
       window.clearTimeout(timeout);
     }
   }
 
-  printBtn.addEventListener('click', async event => {
-    event.preventDefault();
-    event.stopPropagation();
-    if (!isReady()) return;
+  async function runJob(request, pendingLabel) {
     saveIp();
     delete status.dataset.result;
     status.dataset.busy = 'true';
-    status.textContent = 'Envoi…';
-    printBtn.disabled = true;
+    status.textContent = pendingLabel;
+    updateButtons();
 
     try {
-      const printCanvas = fitForPrinter(canvas);
-      const request = buildRequest(printCanvas);
-      await sendWebPrnt(normalizedIp(), request);
-      status.textContent = 'Imprimé ✓';
-      status.dataset.result = 'success';
+      const result = await sendWebPrnt(normalizedIp(), request);
+      status.textContent = result.success ? 'Succès ✓' : 'Échec';
+      status.dataset.result = result.success ? 'success' : 'error';
     } catch (error) {
       console.error('Erreur webPRNT:', error);
-      const message = error?.name === 'AbortError'
-        ? 'Délai dépassé : aucune réponse de l’imprimante.'
-        : `Échec webPRNT : ${error?.message || 'erreur inconnue'}`;
       status.textContent = 'Échec';
       status.dataset.result = 'error';
-      alert(message);
+      if (error?.name === 'AbortError') alert('Délai dépassé : aucune réponse de l’imprimante.');
     } finally {
       status.dataset.busy = 'false';
-      printBtn.disabled = !isReady();
+      updateButtons();
     }
+  }
+
+  testBtn.addEventListener('click', event => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (!hasIp()) return;
+    runJob(buildTestRequest(), 'Test…');
   });
 
-  updateButton();
+  printBtn.addEventListener('click', event => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (!hasIp() || !hasImage()) return;
+    const printCanvas = fitForPrinter(canvas);
+    runJob(buildImageRequest(printCanvas), 'Envoi…');
+  });
+
+  updateButtons();
 })();
