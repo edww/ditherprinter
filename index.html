@@ -42,7 +42,17 @@
       <div class="section-heading"><div><p class="eyebrow">STAR WEBPRNT</p><h2>mC-Print3</h2></div><span id="printerStatus">Non configurée</span></div>
       <label class="printer-address" for="printerIp"><span>Adresse IP</span><input id="printerIp" type="text" inputmode="text" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off" placeholder="192.168.1.100"></label>
       <p class="printer-help">L’iPhone et l’imprimante doivent être sur le même réseau. L’adresse est mémorisée sur cet appareil.</p>
-      <button id="printBtn" class="print-action" type="button" disabled>Imprimer directement</button>
+      <div class="printer-actions">
+        <button id="testPrinterBtn" class="test-action" type="button" disabled>Tester l’imprimante</button>
+        <button id="printBtn" class="print-action" type="button" disabled>Imprimer l’image</button>
+      </div>
+      <dl id="printerDebug" class="printer-debug" hidden>
+        <div><dt>HTTP</dt><dd id="debugHttp">—</dd></div>
+        <div><dt>Success</dt><dd id="debugSuccess">—</dd></div>
+        <div><dt>Code</dt><dd id="debugCode">—</dd></div>
+        <div><dt>Status</dt><dd id="debugStatus">—</dd></div>
+        <div class="debug-raw"><dt>Réponse</dt><dd id="debugRaw">—</dd></div>
+      </dl>
     </section>
 
     <section class="action-bar"><button id="invertBtn" class="secondary-action" type="button">Inverser</button><button id="downloadBtn" class="primary-action" type="button" disabled>Exporter PNG</button></section>
