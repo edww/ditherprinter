@@ -85,9 +85,9 @@
       '<root>',
       '<initialization/>',
       '<alignment position="center"/>',
-      '<text codepage="utf8" width="2" height="2">DITHER PRINTER TEST\n</text>',
-      '<text codepage="utf8">Connexion webPRNT OK\n\n</text>',
-      `<bitImage width="${printCanvas.width}" height="${printCanvas.height}">${raster}</bitImage>`,
+      '<text width="2" height="2">DITHER PRINTER TEST\n</text>',
+      '<text>Connexion webPRNT OK\n\n</text>',
+      `<bitimage width="${printCanvas.width}" height="${printCanvas.height}">${raster}</bitimage>`,
       '<feed line="2"/>',
       '<cutpaper feed="true" type="partial"/>',
       '</root>'
@@ -97,17 +97,19 @@
   function parsePrinterResponse(text) {
     const xml = new DOMParser().parseFromString(text, 'application/xml');
     const successText = xml.querySelector('success')?.textContent?.trim().toLowerCase();
-    const code = xml.querySelector('code')?.textContent?.trim() || '?';
-    const printerStatus = xml.querySelector('status')?.textContent?.trim() || '';
-    return { success: successText === 'true', code, printerStatus };
+    const traderSuccess = xml.documentElement?.getAttribute('TraderSuccess')?.toLowerCase();
+    const code = xml.querySelector('code')?.textContent?.trim() || xml.documentElement?.getAttribute('TraderCode') || '';
+    const printerStatus = xml.querySelector('status')?.textContent?.trim() || xml.documentElement?.getAttribute('Status') || '';
+    const success = successText === 'true' || traderSuccess === 'true';
+    return { success, code, printerStatus };
   }
 
   async function sendWebPrnt(ip, request) {
     const host = ip.replace(/^https?:\/\//i, '').replace(/\/$/, '');
     const endpoint = `https://${host}/StarWebPRNT/SendMessage`;
     const body = new URLSearchParams();
-    body.set('request', request);
-    body.set('checkedBlock', 'true');
+    body.set('Request', request);
+    body.set('CheckedBlock', 'true');
 
     const controller = new AbortController();
     const timeout = window.setTimeout(() => controller.abort(), 30000);
@@ -117,16 +119,22 @@
         method: 'POST',
         mode: 'cors',
         cache: 'no-store',
+        credentials: 'omit',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
         body: body.toString(),
         signal: controller.signal
       });
 
       const text = await response.text();
-      if (!response.ok) throw new Error(`HTTP ${response.status}: ${text.slice(0, 160)}`);
+      const contentType = response.headers.get('content-type') || 'inconnu';
+      if (!response.ok) throw new Error(`HTTP ${response.status} — ${text.slice(0, 220)}`);
 
       const result = parsePrinterResponse(text);
-      if (!result.success || result.code !== '0') {
+      if (!result.success) {
+        const preview = text.replace(/\s+/g, ' ').trim().slice(0, 260) || '(réponse vide)';
+        throw new Error(`Réponse inattendue [${contentType}] : ${preview}`);
+      }
+      if (result.code && result.code !== '0') {
         throw new Error(`webPRNT code ${result.code}${result.printerStatus ? ` — ${result.printerStatus}` : ''}`);
       }
       return result;
@@ -135,7 +143,9 @@
     }
   }
 
-  printBtn.addEventListener('click', async () => {
+  printBtn.addEventListener('click', async event => {
+    event.preventDefault();
+    event.stopPropagation();
     if (!isReady()) return;
     saveIp();
     delete status.dataset.result;
