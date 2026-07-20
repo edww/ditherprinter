@@ -1,5 +1,5 @@
-const CACHE = 'dither-printer-alpha-2';
-const ASSETS = ['./', './index.html', './style.css', './app.js', './manifest.webmanifest'];
+const CACHE = 'dither-printer-alpha-3';
+const ASSETS = ['./', './index.html', './style.css', './app.js', './printer.js', './manifest.webmanifest'];
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)));
