@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <title>Dither Printer α0</title>
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=20260721-0157">
 </head>
 <body>
   <main class="app-shell">
@@ -43,7 +43,7 @@
       <label class="printer-address" for="printerIp"><span>Adresse IP</span><input id="printerIp" type="text" inputmode="text" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off" placeholder="192.168.1.100"></label>
       <p class="printer-help">L’iPhone et l’imprimante doivent être sur le même réseau. L’adresse est mémorisée sur cet appareil.</p>
       <div class="printer-actions">
-        <button id="testPrinterBtn" class="test-action" type="button" disabled>Tester l’imprimante</button>
+        <button id="testPrinterBtn" class="test-action" type="button">Tester l’imprimante</button>
         <button id="printBtn" class="print-action" type="button" disabled>Imprimer l’image</button>
       </div>
       <dl id="printerDebug" class="printer-debug" hidden>
@@ -58,7 +58,7 @@
     <section class="action-bar"><button id="invertBtn" class="secondary-action" type="button">Inverser</button><button id="downloadBtn" class="primary-action" type="button" disabled>Exporter PNG</button></section>
     <p class="footer-note">100 % noir · 100 % blanc · aucun gris</p>
   </main>
-  <script src="app.js"></script>
-  <script src="printer.js"></script>
+  <script src="app.js?v=20260721-0157"></script>
+  <script src="printer.js?v=20260721-0157"></script>
 </body>
 </html>
