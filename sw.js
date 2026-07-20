@@ -1,4 +1,4 @@
-const CACHE = 'dither-printer-alpha-0.1';
+const CACHE = 'dither-printer-alpha-2';
 const ASSETS = ['./', './index.html', './style.css', './app.js', './manifest.webmanifest'];
 
 self.addEventListener('install', event => {
