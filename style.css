@@ -182,16 +182,31 @@ h2 { font-size: 20px; }
   font-size: 16px;
 }
 .printer-help { margin: 10px 0 14px; color: var(--muted); font-size: 10px; line-height: 1.45; }
-.print-action {
-  width: 100%;
+.printer-actions { display: grid; grid-template-columns: 1fr 1.25fr; gap: 9px; }
+.print-action, .test-action {
   min-height: 54px;
   border: 1px solid var(--ink);
   border-radius: 12px;
-  background: var(--ink);
-  color: white;
   font-weight: 800;
 }
-.print-action:disabled { opacity: .35; }
+.print-action { background: var(--ink); color: white; }
+.test-action { background: transparent; color: var(--ink); }
+.print-action:disabled, .test-action:disabled { opacity: .35; }
+.printer-debug {
+  margin: 14px 0 0;
+  padding: 12px;
+  border: 1px dashed var(--ink);
+  border-radius: 10px;
+  background: rgba(255,255,255,.58);
+  font-size: 9px;
+  line-height: 1.4;
+}
+.printer-debug[hidden] { display: none; }
+.printer-debug div { display: grid; grid-template-columns: 70px 1fr; gap: 8px; padding: 3px 0; }
+.printer-debug dt { color: var(--muted); font-weight: 800; }
+.printer-debug dd { margin: 0; overflow-wrap: anywhere; }
+.printer-debug .debug-raw { grid-template-columns: 1fr; margin-top: 5px; padding-top: 8px; border-top: 1px solid var(--line); }
+#debugRaw { max-height: 120px; overflow: auto; white-space: pre-wrap; }
 
 .action-bar { gap: 10px; margin-top: 14px; }
 .action-bar button {
