@@ -13,99 +13,42 @@
 <body>
   <main class="app-shell">
     <header class="topbar">
-      <div>
-        <p class="eyebrow">THERMAL IMAGE LAB</p>
-        <h1>Dither Printer <span>α0</span></h1>
-      </div>
+      <div><p class="eyebrow">THERMAL IMAGE LAB</p><h1>Dither Printer <span>α0</span></h1></div>
       <button id="resetBtn" class="icon-button" type="button" aria-label="Réinitialiser">↺</button>
     </header>
 
     <section class="source-grid" aria-label="Choisir une source">
-      <label class="source-button primary">
-        <span class="source-icon">●</span>
-        <span><strong>Prise de vue</strong><small>Ouvrir l’appareil photo</small></span>
-        <input id="cameraInput" type="file" accept="image/*" capture="environment">
-      </label>
-      <label class="source-button">
-        <span class="source-icon">▧</span>
-        <span><strong>Bibliothèque</strong><small>Choisir une photo</small></span>
-        <input id="libraryInput" type="file" accept="image/*">
-      </label>
+      <label class="source-button primary"><span class="source-icon">●</span><span><strong>Prise de vue</strong><small>Ouvrir l’appareil photo</small></span><input id="cameraInput" type="file" accept="image/*" capture="environment"></label>
+      <label class="source-button"><span class="source-icon">▧</span><span><strong>Bibliothèque</strong><small>Choisir une photo</small></span><input id="libraryInput" type="file" accept="image/*"></label>
     </section>
 
     <section class="preview-card">
       <canvas id="previewCanvas" aria-label="Aperçu noir et blanc"></canvas>
-      <div id="emptyState" class="empty-state">
-        <div class="empty-icon">◫</div>
-        <strong>Ajoute une image</strong>
-        <span>Elle sera convertie en noir et blanc pur.</span>
-      </div>
-      <div class="preview-meta">
-        <span id="modeBadge">SEUIL</span>
-        <span id="sizeBadge">— × —</span>
-      </div>
+      <div id="emptyState" class="empty-state"><div class="empty-icon">◫</div><strong>Ajoute une image</strong><span>Elle sera convertie en noir et blanc pur.</span></div>
+      <div class="preview-meta"><span id="modeBadge">SEUIL</span><span id="sizeBadge">— × —</span></div>
     </section>
 
     <section class="panel">
-      <div class="section-heading">
-        <div>
-          <p class="eyebrow">RENDU</p>
-          <h2>Mode de tramage</h2>
-        </div>
-        <span id="modeCount">1 / 6</span>
-      </div>
+      <div class="section-heading"><div><p class="eyebrow">RENDU</p><h2>Mode de tramage</h2></div><span id="modeCount">1 / 6</span></div>
       <div id="modeList" class="mode-list" role="listbox" aria-label="Modes de tramage">
-        <button class="mode-chip active" data-mode="threshold" type="button">Seuil</button>
-        <button class="mode-chip" data-mode="floyd" type="button">Floyd</button>
-        <button class="mode-chip" data-mode="atkinson" type="button">Atkinson</button>
-        <button class="mode-chip" data-mode="bayer" type="button">Bayer</button>
-        <button class="mode-chip" data-mode="halftone" type="button">Trame</button>
-        <button class="mode-chip" data-mode="noise" type="button">Grain</button>
+        <button class="mode-chip active" data-mode="threshold" type="button">Seuil</button><button class="mode-chip" data-mode="floyd" type="button">Floyd</button><button class="mode-chip" data-mode="atkinson" type="button">Atkinson</button><button class="mode-chip" data-mode="bayer" type="button">Bayer</button><button class="mode-chip" data-mode="halftone" type="button">Trame</button><button class="mode-chip" data-mode="noise" type="button">Grain</button>
       </div>
-
-      <div class="control-row">
-        <label for="thresholdRange">Seuil</label>
-        <input id="thresholdRange" type="range" min="20" max="235" value="128">
-        <output id="thresholdValue">128</output>
-      </div>
-
-      <div class="control-row">
-        <label for="contrastRange">Contraste</label>
-        <input id="contrastRange" type="range" min="-100" max="100" value="12">
-        <output id="contrastValue">+12</output>
-      </div>
-
-      <div class="control-row">
-        <label for="resolutionRange">Détail</label>
-        <input id="resolutionRange" type="range" min="240" max="960" step="60" value="600">
-        <output id="resolutionValue">600</output>
-      </div>
+      <div class="control-row"><label for="thresholdRange">Seuil</label><input id="thresholdRange" type="range" min="20" max="235" value="128"><output id="thresholdValue">128</output></div>
+      <div class="control-row"><label for="contrastRange">Contraste</label><input id="contrastRange" type="range" min="-100" max="100" value="12"><output id="contrastValue">+12</output></div>
+      <div class="control-row"><label for="resolutionRange">Détail</label><input id="resolutionRange" type="range" min="240" max="960" step="60" value="600"><output id="resolutionValue">600</output></div>
     </section>
 
     <section class="printer-panel">
-      <div class="section-heading">
-        <div>
-          <p class="eyebrow">STAR WEBPRNT</p>
-          <h2>mC-Print3</h2>
-        </div>
-        <span id="printerStatus">Non configurée</span>
-      </div>
-      <label class="printer-address" for="printerIp">
-        <span>Adresse IP</span>
-        <input id="printerIp" inputmode="decimal" autocomplete="off" placeholder="192.168.1.100">
-      </label>
+      <div class="section-heading"><div><p class="eyebrow">STAR WEBPRNT</p><h2>mC-Print3</h2></div><span id="printerStatus">Non configurée</span></div>
+      <label class="printer-address" for="printerIp"><span>Adresse IP</span><input id="printerIp" inputmode="decimal" autocomplete="off" placeholder="192.168.1.100"></label>
       <p class="printer-help">L’iPhone et l’imprimante doivent être sur le même réseau. L’adresse est mémorisée sur cet appareil.</p>
       <button id="printBtn" class="print-action" type="button" disabled>Imprimer directement</button>
     </section>
 
-    <section class="action-bar">
-      <button id="invertBtn" class="secondary-action" type="button">Inverser</button>
-      <button id="downloadBtn" class="primary-action" type="button" disabled>Exporter PNG</button>
-    </section>
-
+    <section class="action-bar"><button id="invertBtn" class="secondary-action" type="button">Inverser</button><button id="downloadBtn" class="primary-action" type="button" disabled>Exporter PNG</button></section>
     <p class="footer-note">100 % noir · 100 % blanc · aucun gris</p>
   </main>
-
   <script src="app.js"></script>
+  <script src="printer.js"></script>
 </body>
 </html>
