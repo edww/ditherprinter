@@ -78,7 +78,7 @@ h2 { font-size: 20px; }
 .preview-card {
   position: sticky;
   top: 8px;
-  z-index: 5;
+  z-index: 20;
   display: grid;
   place-items: center;
   width: 100%;
@@ -90,6 +90,7 @@ h2 { font-size: 20px; }
   border-radius: 4px;
   background: #fff;
   box-shadow: 7px 7px 0 var(--ink);
+  isolation: isolate;
 }
 #previewCanvas {
   display: block;
@@ -134,7 +135,7 @@ h2 { font-size: 20px; }
 
 .panel, .printer-panel {
   position: relative;
-  z-index: 6;
+  z-index: 1;
   padding: 18px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -206,6 +207,6 @@ h2 { font-size: 20px; }
 
 @media (min-width: 700px) {
   .app-shell { padding-top: 34px; }
-  .preview-card { position: relative; top: auto; max-height: none; aspect-ratio: 3 / 2; }
+  .preview-card { position: relative; top: auto; z-index: auto; max-height: none; aspect-ratio: 3 / 2; }
   .source-button { padding: 16px 18px; }
 }
