@@ -1,16 +1,10 @@
-const CACHE = 'dither-printer-runtime-v4';
-const APP_SHELL = ['./', './index.html', './style.css', './app.js', './printer.js', './manifest.webmanifest'];
-
-self.addEventListener('install', event => {
-  event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(APP_SHELL)));
+self.addEventListener('install', () => {
   self.skipWaiting();
 });
 
 self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then(keys => Promise.all(
-      keys.filter(key => key !== CACHE).map(key => caches.delete(key))
-    ))
+    caches.keys().then(keys => Promise.all(keys.map(key => caches.delete(key))))
   );
   self.clients.claim();
 });
@@ -21,20 +15,5 @@ self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
 
-  event.respondWith(
-    fetch(event.request, { cache: 'no-store' })
-      .then(response => {
-        if (response.ok) {
-          const copy = response.clone();
-          caches.open(CACHE).then(cache => cache.put(event.request, copy));
-        }
-        return response;
-      })
-      .catch(async () => {
-        const cached = await caches.match(event.request);
-        if (cached) return cached;
-        if (event.request.mode === 'navigate') return caches.match('./index.html');
-        throw new Error('Offline and resource not cached');
-      })
-  );
+  event.respondWith(fetch(event.request, { cache: 'no-store' }));
 });
