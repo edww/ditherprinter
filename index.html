@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <title>Dither Printer α0</title>
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="style.css?v=20260721-0345">
+  <link rel="stylesheet" href="style.css?v=20260721-0515">
 </head>
 <body>
   <main class="app-shell">
@@ -29,13 +29,24 @@
     </section>
 
     <section class="panel">
-      <div class="section-heading"><div><p class="eyebrow">RENDU</p><h2>Mode de tramage</h2></div><span id="modeCount">1 / 6</span></div>
+      <div class="section-heading"><div><p class="eyebrow">RENDU</p><h2>Mode de tramage</h2></div><span id="modeCount">1 / 12</span></div>
       <div id="modeList" class="mode-list" role="listbox" aria-label="Modes de tramage">
-        <button class="mode-chip active" data-mode="threshold" type="button">Seuil</button><button class="mode-chip" data-mode="floyd" type="button">Floyd</button><button class="mode-chip" data-mode="atkinson" type="button">Atkinson</button><button class="mode-chip" data-mode="bayer" type="button">Bayer</button><button class="mode-chip" data-mode="halftone" type="button">Trame</button><button class="mode-chip" data-mode="noise" type="button">Grain</button>
+        <button class="mode-chip active" data-mode="threshold" type="button">Seuil</button>
+        <button class="mode-chip" data-mode="floyd" type="button">Floyd</button>
+        <button class="mode-chip" data-mode="atkinson" type="button">Atkinson</button>
+        <button class="mode-chip" data-mode="stucki" type="button">Stucki</button>
+        <button class="mode-chip" data-mode="sierra" type="button">Sierra</button>
+        <button class="mode-chip" data-mode="bayer" type="button">Bayer 4×4</button>
+        <button class="mode-chip" data-mode="ordered8" type="button">Ordered 8×8</button>
+        <button class="mode-chip" data-mode="bluenoise" type="button">Blue Noise</button>
+        <button class="mode-chip" data-mode="riemersma" type="button">Riemersma</button>
+        <button class="mode-chip" data-mode="halftone" type="button">Trame</button>
+        <button class="mode-chip" data-mode="noise" type="button">Grain</button>
+        <button class="mode-chip" data-mode="signalfield" type="button">Signal Field</button>
       </div>
       <div class="control-row"><label for="thresholdRange">Seuil</label><input id="thresholdRange" type="range" min="20" max="235" value="128"><output id="thresholdValue">128</output></div>
       <div class="control-row"><label for="contrastRange">Contraste</label><input id="contrastRange" type="range" min="-100" max="100" value="12"><output id="contrastValue">+12</output></div>
-      <div class="control-row"><label for="resolutionRange">Détail</label><input id="resolutionRange" type="range" min="100" max="960" step="20" value="600"><output id="resolutionValue">600</output></div>
+      <div class="control-row"><label for="resolutionRange">Résolution</label><input id="resolutionRange" type="range" min="100" max="576" step="4" value="576"><output id="resolutionValue">576</output></div>
     </section>
 
     <section class="printer-panel">
@@ -58,8 +69,8 @@
     <section class="action-bar"><button id="invertBtn" class="secondary-action" type="button">Inverser</button><button id="downloadBtn" class="primary-action" type="button" disabled>Exporter PNG</button></section>
     <p class="footer-note">100 % noir · 100 % blanc · aucun gris</p>
   </main>
-  <script src="binary-canvas.js?v=20260721-0345"></script>
-  <script src="app.js?v=20260721-0345"></script>
-  <script src="printer.js?v=20260721-0345"></script>
+  <script src="binary-canvas.js?v=20260721-0515"></script>
+  <script src="app.js?v=20260721-0515"></script>
+  <script src="printer.js?v=20260721-0515"></script>
 </body>
 </html>
