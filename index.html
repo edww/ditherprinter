@@ -7,14 +7,14 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="description" content="Transformez vos photos en noir et blanc pur pour impression thermique.">
-  <title>Dither Printer β2.2</title>
+  <title>Dither Printer β3</title>
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="style.css?v=20260721-2300">
+  <link rel="stylesheet" href="style.css?v=20260721-2340">
 </head>
 <body>
   <main class="app-shell">
     <header class="topbar">
-      <div><p class="eyebrow">LABORATOIRE D’IMAGE THERMIQUE</p><h1>Dither Printer <span>β2.2</span></h1></div>
+      <div><p class="eyebrow">LABORATOIRE D’IMAGE THERMIQUE</p><h1>Dither Printer <span>β3</span></h1></div>
       <div class="top-actions"><button id="settingsBtn" class="icon-button" type="button" aria-label="Paramètres">⚙</button><button id="resetBtn" class="icon-button" type="button" aria-label="Réinitialiser">↺</button></div>
     </header>
     <section class="source-grid" aria-label="Choisir une source">
@@ -27,25 +27,28 @@
       <div class="preview-meta"><span id="modeBadge">SEUIL</span><span id="sizeBadge">— × —</span></div>
     </section>
     <section class="panel compact-panel">
-      <div class="section-heading compact-heading"><h2>Rendu</h2><span id="modeCount">1 / 13</span></div>
+      <div class="section-heading compact-heading"><h2>Rendu</h2><span id="modeCount">1 / 9</span></div>
       <div id="modeList" class="mode-list" role="listbox" aria-label="Modes de rendu">
         <button class="mode-chip active" data-mode="threshold" type="button">Seuil</button>
-        <button class="mode-chip" data-mode="floyd" type="button">Floyd</button><button class="mode-chip" data-mode="atkinson" type="button">Atkinson</button><button class="mode-chip" data-mode="stucki" type="button">Stucki</button><button class="mode-chip" data-mode="sierra" type="button">Sierra</button><button class="mode-chip" data-mode="bayer" type="button">Bayer 4×4</button><button class="mode-chip" data-mode="ordered8" type="button">Ordered 8×8</button><button class="mode-chip" data-mode="bluenoise" type="button">Blue Noise</button><button class="mode-chip" data-mode="riemersma" type="button">Riemersma</button><button class="mode-chip" data-mode="grain" type="button">Grain</button>
-        <button class="mode-chip" data-mode="paperSpiral" type="button">Paper Spiral</button>
-        <button class="mode-chip" data-mode="paperMetaballs" type="button">Paper Metaballs</button>
-        <button class="mode-chip" data-mode="paperDivide" type="button">Paper Divide</button>
+        <button class="mode-chip" data-mode="floyd" type="button">Floyd</button>
+        <button class="mode-chip" data-mode="atkinson" type="button">Atkinson</button>
+        <button class="mode-chip" data-mode="bayer" type="button">Bayer</button>
+        <button class="mode-chip" data-mode="halftone" type="button">Halftone</button>
+        <button class="mode-chip" data-mode="squiggle" type="button">Squiggle</button>
+        <button class="mode-chip" data-mode="hatch" type="button">Hatch</button>
+        <button class="mode-chip" data-mode="ribbon" type="button">Ribbon</button>
+        <button class="mode-chip" data-mode="worms" type="button">Worms</button>
       </div>
       <div class="control-row"><label for="resolutionRange">Résolution</label><input id="resolutionRange" type="range" min="100" max="576" step="4" value="576"><output id="resolutionValue">576</output></div>
       <div id="basicControls">
         <div class="control-row"><label for="thresholdRange">Seuil</label><input id="thresholdRange" type="range" min="20" max="235" value="128"><output id="thresholdValue">128</output></div>
         <div class="control-row"><label for="contrastRange">Contraste</label><input id="contrastRange" type="range" min="-100" max="100" value="12"><output id="contrastValue">+12</output></div>
       </div>
-      <div id="paperControls" hidden>
-        <div class="control-row"><label id="amountLabel" for="amountRange">Densité</label><input id="amountRange" type="range" min="8" max="160" value="72"><output id="amountValue">72</output></div>
-        <div class="control-row"><label id="warpLabel" for="warpRange">Force</label><input id="warpRange" type="range" min="0" max="100" value="55"><output id="warpValue">55</output></div>
-        <div class="control-row"><label id="turbLabel" for="turbRange">Épaisseur</label><input id="turbRange" type="range" min="0" max="100" value="48"><output id="turbValue">48</output></div>
-        <div class="control-row"><label for="signalContrastRange">Contraste</label><input id="signalContrastRange" type="range" min="-100" max="100" value="35"><output id="signalContrastValue">+35</output></div>
-        <div class="control-row"><label for="brightnessRange">Luminosité</label><input id="brightnessRange" type="range" min="-100" max="100" value="0"><output id="brightnessValue">0</output></div>
+      <div id="artControls" hidden>
+        <div class="control-row"><label id="densityLabel" for="densityRange">Densité</label><input id="densityRange" type="range" min="8" max="100" value="55"><output id="densityValue">55</output></div>
+        <div class="control-row"><label id="strengthLabel" for="strengthRange">Épaisseur</label><input id="strengthRange" type="range" min="0" max="100" value="65"><output id="strengthValue">65</output></div>
+        <div class="control-row"><label id="motionLabel" for="motionRange">Mouvement</label><input id="motionRange" type="range" min="0" max="100" value="45"><output id="motionValue">45</output></div>
+        <div class="control-row"><label for="artContrastRange">Contraste</label><input id="artContrastRange" type="range" min="-100" max="100" value="35"><output id="artContrastValue">+35</output></div>
       </div>
     </section>
     <section id="printerPanel" class="printer-panel">
@@ -63,11 +66,10 @@
     <label class="settings-field"><span>Langue</span><select id="languageSelect"><option value="fr">Français</option><option value="en">English</option><option value="es">Español</option></select></label>
     <label class="check-row"><input id="showPrinterToggle" type="checkbox" checked><span>Afficher toute la partie impression</span></label>
     <label class="check-row"><input id="showTestToggle" type="checkbox" checked><span>Afficher le bouton de test</span></label>
-    <div class="about-copy"><strong>Dither Printer</strong><p>β2.2 : premiers essais Paper.js — Spiral, Metaballs et Divide.</p></div>
+    <div class="about-copy"><strong>Dither Printer</strong><p>β3 : Halftone, Squiggle, Hatch, Ribbon et Worms.</p></div>
   </dialog>
-  <script src="https://cdn.jsdelivr.net/npm/paper@0.12.18/dist/paper-full.min.js"></script>
-  <script src="binary-canvas.js?v=20260721-2300"></script>
-  <script src="app-v2.js?v=20260721-2300"></script>
-  <script src="printer.js?v=20260721-2300"></script>
+  <script src="binary-canvas.js?v=20260721-2340"></script>
+  <script src="app-v2.js?v=20260721-2340"></script>
+  <script src="printer.js?v=20260721-2340"></script>
 </body>
 </html>
