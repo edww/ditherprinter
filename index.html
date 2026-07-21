@@ -6,60 +6,51 @@
   <meta name="theme-color" content="#f4f1e8">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="description" content="Transformez vos photos en noir et blanc pur avec des tramages, des champs de lignes et des rendus ASCII personnalisables.">
-  <title>Dither Printer β2.0.2</title>
+  <meta name="description" content="Transformez vos photos en noir et blanc pur pour impression thermique.">
+  <title>Dither Printer β2.1</title>
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="style.css?v=20260721-2105">
+  <link rel="stylesheet" href="style.css?v=20260721-2145">
 </head>
 <body>
   <main class="app-shell">
     <header class="topbar">
-      <div><p class="eyebrow" data-i18n="tagline">LABORATOIRE D’IMAGE THERMIQUE</p><h1>Dither Printer <span>β2.0.2</span></h1></div>
+      <div><p class="eyebrow">LABORATOIRE D’IMAGE THERMIQUE</p><h1>Dither Printer <span>β2.1</span></h1></div>
       <div class="top-actions"><button id="settingsBtn" class="icon-button" type="button" aria-label="Paramètres">⚙</button><button id="resetBtn" class="icon-button" type="button" aria-label="Réinitialiser">↺</button></div>
     </header>
-
     <section class="source-grid" aria-label="Choisir une source">
-      <label class="source-button primary"><span class="source-icon">●</span><span><strong data-i18n="camera">Prise de vue</strong><small data-i18n="cameraHelp">Ouvrir l’appareil photo</small></span><input id="cameraInput" type="file" accept="image/*" capture="environment"></label>
-      <label class="source-button"><span class="source-icon">▧</span><span><strong data-i18n="library">Bibliothèque</strong><small data-i18n="libraryHelp">Choisir une photo</small></span><input id="libraryInput" type="file" accept="image/*"></label>
+      <label class="source-button primary"><span class="source-icon">●</span><span><strong>Prise de vue</strong><small>Ouvrir l’appareil photo</small></span><input id="cameraInput" type="file" accept="image/*" capture="environment"></label>
+      <label class="source-button"><span class="source-icon">▧</span><span><strong>Bibliothèque</strong><small>Choisir une photo</small></span><input id="libraryInput" type="file" accept="image/*"></label>
     </section>
-
     <section class="preview-card">
       <canvas id="previewCanvas" aria-label="Aperçu noir et blanc"></canvas>
-      <div id="emptyState" class="empty-state"><div class="empty-icon">◫</div><strong data-i18n="addImage">Ajoute une image</strong><span data-i18n="emptyHelp">Elle sera convertie en noir et blanc pur.</span></div>
+      <div id="emptyState" class="empty-state"><div class="empty-icon">◫</div><strong>Ajoute une image</strong><span>Elle sera convertie en noir et blanc pur.</span></div>
       <div class="preview-meta"><span id="modeBadge">SEUIL</span><span id="sizeBadge">— × —</span></div>
     </section>
-
     <section class="panel compact-panel">
-      <div class="section-heading compact-heading"><h2 data-i18n="renderStyle">Rendu</h2><span id="modeCount">1 / 30</span></div>
+      <div class="section-heading compact-heading"><h2>Rendu</h2><span id="modeCount">1 / 13</span></div>
       <div id="modeList" class="mode-list" role="listbox" aria-label="Modes de rendu">
         <button class="mode-chip active" data-mode="threshold" type="button">Seuil</button>
         <button class="mode-chip" data-mode="floyd" type="button">Floyd</button><button class="mode-chip" data-mode="atkinson" type="button">Atkinson</button><button class="mode-chip" data-mode="stucki" type="button">Stucki</button><button class="mode-chip" data-mode="sierra" type="button">Sierra</button><button class="mode-chip" data-mode="bayer" type="button">Bayer 4×4</button><button class="mode-chip" data-mode="ordered8" type="button">Ordered 8×8</button><button class="mode-chip" data-mode="bluenoise" type="button">Blue Noise</button><button class="mode-chip" data-mode="riemersma" type="button">Riemersma</button><button class="mode-chip" data-mode="grain" type="button">Grain</button>
-        <button class="mode-chip" data-mode="fieldWarp" type="button">Field Warp</button><button class="mode-chip" data-mode="fieldElastic" type="button">Field Elastic</button><button class="mode-chip" data-mode="fieldRefraction" type="button">Field Refraction</button><button class="mode-chip" data-mode="fieldCompression" type="button">Field Compression</button><button class="mode-chip" data-mode="fieldThickness" type="button">Field Thickness</button>
-        <button class="mode-chip" data-mode="asciiClassic" type="button">ASCII Classic</button><button class="mode-chip" data-mode="asciiBlocks" type="button">ASCII Blocks</button><button class="mode-chip" data-mode="asciiTypewriter" type="button">ASCII Typewriter</button><button class="mode-chip" data-mode="asciiBraille" type="button">ASCII Braille</button><button class="mode-chip" data-mode="asciiMosaic" type="button">ASCII Mosaic</button><button class="mode-chip" data-mode="asciiNumbers" type="button">ASCII Numbers</button><button class="mode-chip" data-mode="asciiBinary" type="button">ASCII Binary</button><button class="mode-chip" data-mode="asciiHex" type="button">ASCII Hex</button><button class="mode-chip" data-mode="asciiJapanese" type="button">ASCII Japonais</button><button class="mode-chip" data-mode="asciiEmoji" type="button">ASCII Symboles</button><button class="mode-chip" data-mode="textWords" type="button">Text Art</button><button class="mode-chip" data-mode="textLetters" type="button">Lettres du texte</button><button class="mode-chip" data-mode="textSingle" type="button">1 caractère</button><button class="mode-chip" data-mode="textPair" type="button">2 caractères</button><button class="mode-chip" data-mode="textPattern" type="button">Motif perso</button>
+        <button class="mode-chip" data-mode="fieldMono" type="button">Field</button>
+        <button class="mode-chip" data-mode="asciiClassic" type="button">ASCII Classic</button>
+        <button class="mode-chip" data-mode="asciiCustom" type="button">ASCII Perso</button>
       </div>
-
+      <div class="control-row"><label for="resolutionRange">Résolution</label><input id="resolutionRange" type="range" min="100" max="576" step="4" value="576"><output id="resolutionValue">576</output></div>
       <div id="basicControls">
         <div class="control-row"><label for="thresholdRange">Seuil</label><input id="thresholdRange" type="range" min="20" max="235" value="128"><output id="thresholdValue">128</output></div>
         <div class="control-row"><label for="contrastRange">Contraste</label><input id="contrastRange" type="range" min="-100" max="100" value="12"><output id="contrastValue">+12</output></div>
-        <div class="control-row"><label for="resolutionRange">Résolution</label><input id="resolutionRange" type="range" min="100" max="576" step="4" value="576"><output id="resolutionValue">576</output></div>
       </div>
-
-      <div id="signalControls" hidden>
-        <div class="control-row"><label for="amountRange">Quantité</label><input id="amountRange" type="range" min="20" max="180" value="92"><output id="amountValue">92</output></div>
-        <div class="control-row"><label for="densityRange">Densité</label><input id="densityRange" type="range" min="1" max="10" step="0.1" value="3.2"><output id="densityValue">3.2</output></div>
-        <div class="control-row"><label for="flowRange">Déplacement</label><input id="flowRange" type="range" min="0" max="100" value="70"><output id="flowValue">70</output></div>
-        <div class="control-row"><label for="warpRange">Déformation</label><input id="warpRange" type="range" min="0" max="100" value="54"><output id="warpValue">54</output></div>
-        <div class="control-row"><label for="turbRange">Épaisseur</label><input id="turbRange" type="range" min="0" max="100" value="52"><output id="turbValue">52</output></div>
-        <div class="control-row"><label for="biasRange">Angle</label><input id="biasRange" type="range" min="-90" max="90" value="0"><output id="biasValue">0</output></div>
-        <div class="control-row"><label for="signalContrastRange">Contraste</label><input id="signalContrastRange" type="range" min="-100" max="100" value="36"><output id="signalContrastValue">+36</output></div>
-        <div class="control-row"><label for="brightnessRange">Luminosité</label><input id="brightnessRange" type="range" min="-100" max="100" value="-4"><output id="brightnessValue">-4</output></div>
+      <div id="fieldControls" hidden>
+        <div id="amountRow" class="control-row"><label id="amountLabel" for="amountRange">Lignes</label><input id="amountRange" type="range" min="8" max="180" value="92"><output id="amountValue">92</output></div>
+        <div id="warpRow" class="control-row"><label for="warpRange">Déplacement</label><input id="warpRange" type="range" min="0" max="100" value="72"><output id="warpValue">72</output></div>
+        <div id="turbRow" class="control-row"><label for="turbRange">Épaisseur</label><input id="turbRange" type="range" min="0" max="100" value="55"><output id="turbValue">55</output></div>
+        <div class="control-row"><label for="signalContrastRange">Contraste</label><input id="signalContrastRange" type="range" min="-100" max="100" value="44"><output id="signalContrastValue">+44</output></div>
+        <div class="control-row"><label for="brightnessRange">Luminosité</label><input id="brightnessRange" type="range" min="-100" max="100" value="-6"><output id="brightnessValue">-6</output></div>
       </div>
-
       <div id="asciiControls" hidden>
-        <label class="settings-field"><span>Texte / caractères</span><input id="customText" type="text" value="DITHER PRINTER" autocomplete="off" spellcheck="false"></label>
+        <label id="customTextWrap" class="settings-field" hidden><span>Texte / caractères</span><input id="customText" type="text" value="DITHER" autocomplete="off" spellcheck="false"></label>
       </div>
     </section>
-
     <section id="printerPanel" class="printer-panel">
       <div class="section-heading"><div><p class="eyebrow">STAR WEBPRNT</p><h2>mC-Print3</h2></div><span id="printerStatus">Non configurée</span></div>
       <label class="printer-address" for="printerIp"><span>Adresse IP</span><input id="printerIp" type="text" inputmode="text" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off" placeholder="192.168.1.100"></label>
@@ -67,22 +58,18 @@
       <div class="printer-actions"><button id="testPrinterBtn" class="test-action square-test" type="button" aria-label="Tester l’imprimante" title="Tester l’imprimante">⌁</button><button id="printBtn" class="print-action" type="button" disabled>Imprimer l’image</button></div>
       <dl id="printerDebug" class="printer-debug" hidden><div><dt>HTTP</dt><dd id="debugHttp">—</dd></div><div><dt>Success</dt><dd id="debugSuccess">—</dd></div><div><dt>Code</dt><dd id="debugCode">—</dd></div><div><dt>Status</dt><dd id="debugStatus">—</dd></div><div class="debug-raw"><dt>Réponse</dt><dd id="debugRaw">—</dd></div></dl>
     </section>
-
     <section class="action-bar"><button id="invertBtn" class="secondary-action" type="button">Inverser</button><button id="downloadBtn" class="primary-action" type="button" disabled>Exporter PNG</button></section>
     <p class="footer-note">100 % noir · 100 % blanc · aucun gris</p>
   </main>
-
   <dialog id="settingsDialog" class="settings-dialog">
     <div class="settings-head"><h2>Paramètres</h2><button id="closeSettingsBtn" class="icon-button" type="button" aria-label="Fermer">×</button></div>
     <label class="settings-field"><span>Langue</span><select id="languageSelect"><option value="fr">Français</option><option value="en">English</option><option value="es">Español</option></select></label>
     <label class="check-row"><input id="showPrinterToggle" type="checkbox" checked><span>Afficher toute la partie impression</span></label>
     <label class="check-row"><input id="showTestToggle" type="checkbox" checked><span>Afficher le bouton de test</span></label>
-    <div class="about-copy"><strong>Dither Printer</strong><p>Moteur β2 : tramages classiques, champs de lignes déformées et rendus ASCII/Text Art.</p></div>
+    <div class="about-copy"><strong>Dither Printer</strong><p>β2.1 : un Field inspiré des polylignes déformées et deux modes ASCII utiles.</p></div>
   </dialog>
-
-  <script src="binary-canvas.js?v=20260721-2105"></script>
-  <script src="app-v2.js?v=20260721-2105"></script>
-  <script src="hotfix-v2.js?v=20260721-2105"></script>
-  <script src="printer.js?v=20260721-2105"></script>
+  <script src="binary-canvas.js?v=20260721-2145"></script>
+  <script src="app-v2.js?v=20260721-2145"></script>
+  <script src="printer.js?v=20260721-2145"></script>
 </body>
 </html>
