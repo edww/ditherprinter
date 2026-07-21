@@ -98,7 +98,7 @@
   function buildTestRequest() {
     const timestamp = new Date().toLocaleString('fr-FR');
     return [
-      '<StarWebPrint>',
+      '<root>',
       '<initialization/>',
       '<alignment position="center"/>',
       '<text width="2" height="2">DITHER PRINTER\n</text>',
@@ -106,20 +106,20 @@
       `<text>${timestamp}\n</text>`,
       '<feed line="2"/>',
       '<cutpaper feed="true" type="partial"/>',
-      '</StarWebPrint>'
+      '</root>'
     ].join('');
   }
 
   function buildImageRequest(printCanvas) {
     const raster = canvasToRasterBase64(printCanvas);
     return [
-      '<StarWebPrint>',
+      '<root>',
       '<initialization/>',
       '<alignment position="center"/>',
-      `<bitImage x="${printCanvas.width}" y="${printCanvas.height}">${raster}</bitImage>`,
+      `<bitImage x="0" y="0" width="${printCanvas.width}" height="${printCanvas.height}">${raster}</bitImage>`,
       '<feed line="2"/>',
       '<cutpaper feed="true" type="partial"/>',
-      '</StarWebPrint>'
+      '</root>'
     ].join('');
   }
 
@@ -163,13 +163,29 @@
     debugRaw.textContent = result.innerText || raw || '(réponse vide)';
   }
 
+  function escapeXml(value) {
+    return value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&apos;');
+  }
+
+  function buildTraderEnvelope(request) {
+    return [
+      '<?xml version="1.0" encoding="UTF-8"?>',
+      '<StarWebPrint xmlns="http://www.star-m.jp" xmlns:i="http://www.w3.org/2001/XMLSchema-instance">',
+      `<Request>${escapeXml(request)}</Request>`,
+      '<CheckedBlock>true</CheckedBlock>',
+      '</StarWebPrint>'
+    ].join('');
+  }
+
   async function sendWebPrnt(ip, request) {
     const host = ip.replace(/^https?:\/\//i, '').replace(/\/$/, '');
     const endpoint = `https://${host}/StarWebPRNT/SendMessage`;
-    const body = new URLSearchParams();
-    body.set('Request', request);
-    body.set('CheckedBlock', 'true');
-
+    const payload = buildTraderEnvelope(request);
     const controller = new AbortController();
     const timeout = window.setTimeout(() => controller.abort(), 30000);
 
@@ -179,8 +195,8 @@
         mode: 'cors',
         cache: 'no-store',
         credentials: 'omit',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
-        body: body.toString(),
+        headers: { 'Content-Type': 'text/xml; charset=UTF-8' },
+        body: payload,
         signal: controller.signal
       });
 
@@ -213,6 +229,7 @@
       status.textContent = 'Échec';
       status.dataset.result = 'error';
       if (error?.name === 'AbortError') alert('Délai dépassé : aucune réponse de l’imprimante.');
+      else alert(`Échec webPRNT : ${error?.message || 'erreur inconnue'}`);
     } finally {
       status.dataset.busy = 'false';
       updateButtons();
