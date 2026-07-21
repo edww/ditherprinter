@@ -64,6 +64,14 @@ function getTargetSize(image) {
   };
 }
 
+function forcePureBlackWhite(data, threshold = 128) {
+  for (let i = 0; i < data.length; i += 4) {
+    const value = data[i] < threshold ? 0 : 255;
+    data[i] = data[i + 1] = data[i + 2] = value;
+    data[i + 3] = 255;
+  }
+}
+
 function applyThreshold(data, threshold) {
   for (let i = 0; i < data.length; i += 4) {
     const gray = adjustedGray(data[i], data[i + 1], data[i + 2]);
@@ -146,7 +154,7 @@ function applyHalftone(sourceImageData) {
   const temp = document.createElement('canvas');
   temp.width = width;
   temp.height = height;
-  const tctx = temp.getContext('2d');
+  const tctx = temp.getContext('2d', { willReadFrequently: true });
   tctx.fillStyle = '#fff';
   tctx.fillRect(0, 0, width, height);
   tctx.fillStyle = '#000';
@@ -173,7 +181,10 @@ function applyHalftone(sourceImageData) {
       }
     }
   }
-  return tctx.getImageData(0, 0, width, height);
+
+  const result = tctx.getImageData(0, 0, width, height);
+  forcePureBlackWhite(result.data, 128);
+  return result;
 }
 
 function invertPixels(data) {
@@ -212,6 +223,7 @@ function render() {
       applyThreshold(imageData.data, threshold);
   }
 
+  forcePureBlackWhite(imageData.data, 128);
   if (state.inverted) invertPixels(imageData.data);
   ctx.putImageData(imageData, 0, 0);
   sizeBadge.textContent = `${width} × ${height}`;
