@@ -88,35 +88,39 @@
     }
 
     let binary = '';
-    const chunkSize = 0x8000;
-    for (let i = 0; i < bytes.length; i += chunkSize) {
-      binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+    for (let i = 0; i < bytes.length; i += 0x8000) {
+      binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
     }
     return btoa(binary);
   }
 
-  // StarWebPrintTrader attend une liste d'elements concaténés, sans balise <root>.
-  // Le test reste volontairement ASCII et minimal pour éliminer tout problème
-  // de codepage, d'image ou de commande optionnelle.
+  // Requête minimale identique à l'exemple officiel Star :
+  // un document root envoyé directement au endpoint.
   function buildTestRequest() {
     return [
+      '<?xml version="1.0" encoding="UTF-8"?>',
+      '<root checkedblock="true">',
       '<initialization/>',
       '<alignment position="center"/>',
-      '<text codepage="cp437" international="usa" characterspace="0" emphasis="true" invert="false" linespace="32" width="2" height="2" font="font_a" underline="false">TEST PRINTER\n</text>',
-      '<text codepage="cp437" international="usa" characterspace="0" emphasis="false" invert="false" linespace="32" width="1" height="1" font="font_a" underline="false">WEBPRNT TEXT OK\n\n</text>',
+      '<text>STAR MICRONICS&#10;</text>',
+      '<text>WEBPRNT TEST OK&#10;</text>',
       '<feed line="3"/>',
-      '<cutpaper feed="true" type="partial"/>'
+      '<cutpaper feed="true" type="partial"/>',
+      '</root>'
     ].join('');
   }
 
   function buildImageRequest(printCanvas) {
     const raster = canvasToRasterBase64(printCanvas);
     return [
+      '<?xml version="1.0" encoding="UTF-8"?>',
+      '<root checkedblock="true">',
       '<initialization/>',
       '<alignment position="center"/>',
       `<bitimage x="0" y="0" width="${printCanvas.width}" height="${printCanvas.height}">${raster}</bitimage>`,
       '<feed line="2"/>',
-      '<cutpaper feed="true" type="partial"/>'
+      '<cutpaper feed="true" type="partial"/>',
+      '</root>'
     ].join('');
   }
 
@@ -132,22 +136,10 @@
     const responseNode = firstByLocalName(outerXml, 'Response');
     const innerText = responseNode?.textContent?.trim() || '';
     const innerXml = innerText ? parser.parseFromString(innerText, 'application/xml') : outerXml;
-
     const successText = firstByLocalName(innerXml, 'success')?.textContent?.trim().toLowerCase() || '';
-    const code = firstByLocalName(innerXml, 'code')?.textContent?.trim()
-      || outerXml.documentElement?.getAttribute('TraderCode')
-      || '';
-    const printerStatus = firstByLocalName(innerXml, 'status')?.textContent?.trim()
-      || outerXml.documentElement?.getAttribute('Status')
-      || '';
-    const traderSuccess = outerXml.documentElement?.getAttribute('TraderSuccess')?.toLowerCase() || '';
-
-    return {
-      success: successText === 'true' || traderSuccess === 'true',
-      code,
-      printerStatus,
-      innerText
-    };
+    const code = firstByLocalName(innerXml, 'code')?.textContent?.trim() || '';
+    const printerStatus = firstByLocalName(innerXml, 'status')?.textContent?.trim() || '';
+    return { success: successText === 'true', code, printerStatus, innerText };
   }
 
   function showDebug({ httpStatus = '—', result = {}, raw = '' }) {
@@ -160,29 +152,9 @@
     debugRaw.textContent = result.innerText || raw || '(réponse vide)';
   }
 
-  function escapeXml(value) {
-    return value
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&apos;');
-  }
-
-  function buildTraderEnvelope(request) {
-    return [
-      '<?xml version="1.0" encoding="UTF-8"?>',
-      '<StarWebPrint xmlns="http://www.star-m.jp" xmlns:i="http://www.w3.org/2001/XMLSchema-instance">',
-      `<Request>${escapeXml(request)}</Request>`,
-      '<CheckedBlock>true</CheckedBlock>',
-      '</StarWebPrint>'
-    ].join('');
-  }
-
   async function sendWebPrnt(ip, request) {
     const host = ip.replace(/^https?:\/\//i, '').replace(/\/$/, '');
     const endpoint = `https://${host}/StarWebPRNT/SendMessage`;
-    const payload = buildTraderEnvelope(request);
     const controller = new AbortController();
     const timeout = window.setTimeout(() => controller.abort(), 90000);
 
@@ -193,7 +165,7 @@
         cache: 'no-store',
         credentials: 'omit',
         headers: { 'Content-Type': 'text/xml; charset=UTF-8' },
-        body: payload,
+        body: request,
         signal: controller.signal
       });
 
@@ -225,8 +197,9 @@
       console.error('Erreur webPRNT:', error);
       status.textContent = 'Échec';
       status.dataset.result = 'error';
-      if (error?.name === 'AbortError') alert('Délai dépassé : aucune réponse de l’imprimante.');
-      else alert(`Échec webPRNT : ${error?.message || 'erreur inconnue'}`);
+      alert(error?.name === 'AbortError'
+        ? 'Délai dépassé : aucune réponse de l’imprimante.'
+        : `Échec webPRNT : ${error?.message || 'erreur inconnue'}`);
     } finally {
       status.dataset.busy = 'false';
       updateButtons();
@@ -236,16 +209,14 @@
   testBtn.addEventListener('click', event => {
     event.preventDefault();
     event.stopPropagation();
-    if (!hasIp()) return;
-    runJob(buildTestRequest(), 'Test…');
+    if (hasIp()) runJob(buildTestRequest(), 'Test…');
   });
 
   printBtn.addEventListener('click', event => {
     event.preventDefault();
     event.stopPropagation();
     if (!hasIp() || !hasImage()) return;
-    const printCanvas = fitForPrinter(canvas);
-    runJob(buildImageRequest(printCanvas), 'Envoi…');
+    runJob(buildImageRequest(fitForPrinter(canvas)), 'Envoi…');
   });
 
   updateButtons();
