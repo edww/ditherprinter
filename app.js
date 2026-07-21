@@ -56,11 +56,14 @@ function adjustedGray(r, g, b) {
 }
 
 function getTargetSize(image) {
-  const maxSide = Number(controls.resolution.value);
-  const scale = Math.min(1, maxSide / Math.max(image.naturalWidth, image.naturalHeight));
+  // La valeur « Détail » définit désormais la largeur, et non le côté maximal.
+  // Le ratio natif est conservé : une photo iPhone portrait reste en 3:4,
+  // une photo paysage reste en 4:3, sans aucun recadrage.
+  const targetWidth = Number(controls.resolution.value);
+  const ratio = image.naturalHeight / image.naturalWidth;
   return {
-    width: Math.max(1, Math.round(image.naturalWidth * scale)),
-    height: Math.max(1, Math.round(image.naturalHeight * scale))
+    width: Math.max(1, Math.round(targetWidth)),
+    height: Math.max(1, Math.round(targetWidth * ratio))
   };
 }
 
