@@ -27,23 +27,46 @@ function gray(im){const a=new Float32Array(im.width*im.height),c=+controls.artCo
 const sample=(a,w,h,x,y)=>a[clamp(Math.round(y),0,h-1)*w+clamp(Math.round(x),0,w-1)];
 function makeCanvas(w,h){const c=document.createElement('canvas');c.width=w;c.height=h;const o=c.getContext('2d',{willReadFrequently:true});o.fillStyle='#fff';o.fillRect(0,0,w,h);o.strokeStyle='#000';o.fillStyle='#000';o.lineCap='round';o.lineJoin='round';return{c,o}}
 function finish(c){const im=c.getContext('2d',{willReadFrequently:true}).getImageData(0,0,c.width,c.height);forceBW(im.data);return im}
-function halftone(im){const w=im.width,h=im.height,g=gray(im),{c,o}=makeCanvas(w,h),density=+controls.density.value,strength=+controls.strength.value/100,motion=+controls.motion.value/100,spacing=Math.max(3,22-density*.18),step=Math.max(2,spacing*.45);for(let y=spacing/2;y<h;y+=spacing){for(let x=0;x<w;x+=step){const dark=1-sample(g,w,h,x,y),next=Math.min(w,x+step+1),wave=Math.sin(x*.025+y*.017)*spacing*.22*motion;o.beginPath();o.moveTo(x,y+wave);o.lineTo(next,y+wave);o.lineWidth=Math.max(.12,dark*spacing*(.16+strength*.72));o.stroke()}}return finish(c)}
+function halftone(im){
+  const w=im.width,h=im.height,g=gray(im),{c,o}=makeCanvas(w,h);
+  const density=+controls.density.value/100,strength=+controls.strength.value/100,motion=+controls.motion.value/100;
+  const spacing=18-density*13.5;
+  const step=Math.max(2,spacing*.42);
+  const maxThickness=spacing*(.38+strength*.58);
+  for(let row=0,y=spacing*.5;y<h+spacing;y+=spacing,row++){
+    const top=[],bottom=[];
+    for(let x=-step;x<=w+step;x+=step){
+      const wave=(Math.sin(x*.022+row*.73)+Math.sin(x*.008-row*.41)*.55)*spacing*.38*motion;
+      const yy=y+wave;
+      const dark=Math.pow(clamp(1-sample(g,w,h,x,yy),0,1),.72);
+      const thickness=Math.max(0,dark*maxThickness-.22);
+      top.push([x,yy-thickness*.5]);
+      bottom.push([x,yy+thickness*.5]);
+    }
+    o.beginPath();
+    o.moveTo(top[0][0],top[0][1]);
+    for(let i=1;i<top.length;i++)o.lineTo(top[i][0],top[i][1]);
+    for(let i=bottom.length-1;i>=0;i--)o.lineTo(bottom[i][0],bottom[i][1]);
+    o.closePath();o.fill();
+  }
+  return finish(c)
+}
 function squiggle(im){const w=im.width,h=im.height,g=gray(im),{c,o}=makeCanvas(w,h),density=+controls.density.value,strength=+controls.strength.value/100,motion=+controls.motion.value/100,spacing=Math.max(4,26-density*.2),step=2;for(let row=0,y=spacing/2;y<h;y+=spacing,row++){o.beginPath();for(let x=0;x<=w;x+=step){const dark=1-sample(g,w,h,x,y),amp=dark*spacing*(.2+motion*1.05),yy=y+Math.sin(x*(.055+motion*.09)+row*.8)*amp;if(x===0)o.moveTo(x,yy);else o.lineTo(x,yy)}o.lineWidth=Math.max(.65,w/800*(.75+strength*2.2));o.stroke()}return finish(c)}
 function hatch(im){const w=im.width,h=im.height,g=gray(im),{c,o}=makeCanvas(w,h),density=+controls.density.value,strength=+controls.strength.value/100,motion=+controls.motion.value/100,cell=Math.max(5,24-density*.17),len=cell*(1.1+strength*.8);o.lineWidth=Math.max(.55,w/1000*(1+strength*1.8));for(let y=0;y<h;y+=cell)for(let x=0;x<w;x+=cell){const dark=1-sample(g,w,h,x+cell/2,y+cell/2),cx=x+cell/2,cy=y+cell/2;if(dark>.18)line(cx,cy,len,Math.PI/4);if(dark>.42)line(cx,cy,len,-Math.PI/4);if(dark>.68&&motion>.25)line(cx,cy,len,0);if(dark>.84&&motion>.6)line(cx,cy,len,Math.PI/2)}function line(cx,cy,l,a){o.beginPath();o.moveTo(cx-Math.cos(a)*l/2,cy-Math.sin(a)*l/2);o.lineTo(cx+Math.cos(a)*l/2,cy+Math.sin(a)*l/2);o.stroke()}return finish(c)}
 function ribbon(im){const w=im.width,h=im.height,g=gray(im),{c,o}=makeCanvas(w,h),density=+controls.density.value,strength=+controls.strength.value/100,motion=+controls.motion.value/100,spacing=Math.max(5,30-density*.22),step=3;for(let row=0,y=spacing/2;y<h;y+=spacing,row++){o.beginPath();for(let s=0;s<=w;s+=step){const x=row%2?w-s:s,dark=1-sample(g,w,h,x,y),drift=Math.sin(s*.018+row*1.7)*spacing*motion*.8+(dark-.5)*spacing*motion,yy=y+drift;if(s===0)o.moveTo(x,yy);else o.lineTo(x,yy)}o.lineWidth=Math.max(.8,spacing*(.08+strength*.28));o.stroke()}return finish(c)}
 function worms(im){const w=im.width,h=im.height,g=gray(im),{c,o}=makeCanvas(w,h),density=+controls.density.value,strength=+controls.strength.value/100,motion=+controls.motion.value/100,count=Math.round(35+density*2.2),steps=Math.round(35+density*.9),stepLen=1.5+motion*2.2;o.lineWidth=Math.max(.55,w/1100*(1+strength*2.4));for(let n=0;n<count;n++){let x=hash(n,17)*w,y=hash(n,71)*h,a=hash(n,131)*Math.PI*2;o.beginPath();o.moveTo(x,y);for(let s=0;s<steps;s++){const dark=1-sample(g,w,h,x,y);if(dark<.12&&hash(n,s)>.12)break;const e=2,left=sample(g,w,h,x-e,y),right=sample(g,w,h,x+e,y),up=sample(g,w,h,x,y-e),down=sample(g,w,h,x,y+e),target=Math.atan2(up-down,left-right);a=a*(.82-motion*.18)+target*(.18+motion*.18)+(hash(n*97+s,43)-.5)*.75*motion;x+=Math.cos(a)*stepLen;y+=Math.sin(a)*stepLen;if(x<0||x>=w||y<0||y>=h)break;o.lineTo(x,y)}o.stroke()}return finish(c)}
 const artModes=new Set(['halftone','squiggle','hatch','ribbon','worms']);
 function render(){if(!state.image)return;try{const{width,height}=target(state.image);canvas.width=width;canvas.height=height;ctx.fillStyle='#fff';ctx.fillRect(0,0,width,height);ctx.drawImage(state.image,0,0,width,height);let im=ctx.getImageData(0,0,width,height);switch(state.mode){case'floyd':case'atkinson':diffusion(im,state.mode);break;case'bayer':ordered(im,b4);break;case'halftone':im=halftone(im);break;case'squiggle':im=squiggle(im);break;case'hatch':im=hatch(im);break;case'ribbon':im=ribbon(im);break;case'worms':im=worms(im);break;default:threshold(im)}forceBW(im.data);if(state.inverted)invert(im.data);ctx.putImageData(im,0,0);emptyState.hidden=true;sizeBadge.textContent=`${width} × ${height}`;downloadBtn.disabled=false}catch(error){console.error('Render failed',error);emptyState.hidden=false;emptyState.querySelector('strong').textContent='Erreur de rendu';emptyState.querySelector('span').textContent=error.message}}
-function schedule(){clearTimeout(state.timer);state.timer=setTimeout(render,70)}
+function schedule(){clearTimeout(state.timer);state.timer=setTimeout(render,45)}
 async function load(file){if(!file)return;try{if(state.imageUrl)URL.revokeObjectURL(state.imageUrl);state.imageUrl=URL.createObjectURL(file);const img=new Image();img.decoding='async';await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=()=>reject(new Error('Image illisible'));img.src=state.imageUrl});state.image=img;render()}catch(error){console.error(error);emptyState.hidden=false;emptyState.querySelector('strong').textContent='Photo non chargée';emptyState.querySelector('span').textContent='Essaie une autre photo.'}}
 function labels(){Object.entries(controls).forEach(([k,c])=>{if(!c||!outputs[k])return;outputs[k].textContent=(k==='contrast'||k==='artContrast')&&+c.value>0?`+${c.value}`:c.value});modeBadge.textContent=names[state.mode]||state.mode.toUpperCase();modeCount.textContent=`${modes.findIndex(b=>b.dataset.mode===state.mode)+1} / ${modes.length}`}
 function groups(){const art=artModes.has(state.mode);$('#basicControls').hidden=art;$('#artControls').hidden=!art}
-const presets={halftone:[64,76,8,32,'Densité','Épaisseur','Courbure'],squiggle:[58,52,64,38,'Lignes','Trait','Amplitude'],hatch:[62,48,48,42,'Densité','Trait','Croisement'],ribbon:[55,42,55,40,'Rubans','Largeur','Déformation'],worms:[58,55,72,48,'Population','Trait','Agitation']};
+const presets={halftone:[68,88,18,48,'Densité','Épaisseur','Courbure'],squiggle:[58,52,64,38,'Lignes','Trait','Amplitude'],hatch:[62,48,48,42,'Densité','Trait','Croisement'],ribbon:[55,42,55,40,'Rubans','Largeur','Déformation'],worms:[58,55,72,48,'Population','Trait','Agitation']};
 function preset(mode){const p=presets[mode];if(!p)return;[controls.density.value,controls.strength.value,controls.motion.value,controls.artContrast.value]=p;$('#densityLabel').textContent=p[4];$('#strengthLabel').textContent=p[5];$('#motionLabel').textContent=p[6]}
 ['cameraInput','libraryInput'].forEach(id=>{const input=$(`#${id}`);input.addEventListener('change',e=>{load(e.target.files&&e.target.files[0]);e.target.value=''})});
-modes.forEach(b=>b.addEventListener('click',()=>{state.mode=b.dataset.mode;modes.forEach(x=>x.classList.toggle('active',x===b));preset(state.mode);groups();labels();schedule()}));
+modes.forEach(b=>b.addEventListener('click',()=>{clearTimeout(state.timer);state.mode=b.dataset.mode;modes.forEach(x=>x.classList.toggle('active',x===b));preset(state.mode);groups();labels();render()}));
 Object.values(controls).forEach(c=>c&&c.addEventListener('input',()=>{labels();schedule()}));
-$('#invertBtn').addEventListener('click',()=>{state.inverted=!state.inverted;schedule()});
+$('#invertBtn').addEventListener('click',()=>{state.inverted=!state.inverted;render()});
 $('#resetBtn').addEventListener('click',()=>location.reload());
 downloadBtn.addEventListener('click',()=>canvas.toBlob(blob=>{if(!blob)return;const a=document.createElement('a'),u=URL.createObjectURL(blob);a.href=u;a.download=`dither-printer-${state.mode}.png`;a.click();setTimeout(()=>URL.revokeObjectURL(u),1200)},'image/png'));
 const dialog=$('#settingsDialog');$('#settingsBtn').addEventListener('click',()=>dialog.showModal());$('#closeSettingsBtn').addEventListener('click',()=>dialog.close());$('#languageSelect').value=state.language;
