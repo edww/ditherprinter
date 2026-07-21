@@ -7,14 +7,14 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="description" content="Transformez vos photos en noir et blanc pur pour impression thermique.">
-  <title>Dither Printer β3.1</title>
+  <title>Dither Printer β3.2</title>
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="style.css?v=20260721-1105">
+  <link rel="stylesheet" href="style.css?v=20260721-1205">
 </head>
 <body>
   <main class="app-shell">
     <header class="topbar">
-      <div><p class="eyebrow">LABORATOIRE D’IMAGE THERMIQUE</p><h1>Dither Printer <span>β3.1</span></h1></div>
+      <div><p class="eyebrow">LABORATOIRE D’IMAGE THERMIQUE</p><h1>Dither Printer <span>β3.2</span></h1></div>
       <div class="top-actions"><button id="settingsBtn" class="icon-button" type="button" aria-label="Paramètres">⚙</button><button id="resetBtn" class="icon-button" type="button" aria-label="Réinitialiser">↺</button></div>
     </header>
     <section class="source-grid" aria-label="Choisir une source">
@@ -24,20 +24,20 @@
     <section class="preview-card">
       <canvas id="previewCanvas" aria-label="Aperçu noir et blanc"></canvas>
       <div id="emptyState" class="empty-state"><div class="empty-icon">◫</div><strong>Ajoute une image</strong><span>Elle sera convertie en noir et blanc pur.</span></div>
-      <div class="preview-meta"><span id="modeBadge">SEUIL</span><span id="sizeBadge">— × —</span></div>
+      <div class="preview-meta"><span id="modeBadge">FLOYD</span><span id="sizeBadge">— × —</span></div>
     </section>
     <section class="panel compact-panel">
       <div class="section-heading compact-heading"><h2>Rendu</h2><span id="modeCount">1 / 9</span></div>
       <div id="modeList" class="mode-list" role="listbox" aria-label="Modes de rendu">
-        <button class="mode-chip active" data-mode="threshold" type="button">Seuil</button>
-        <button class="mode-chip" data-mode="floyd" type="button">Floyd</button>
+        <button class="mode-chip active" data-mode="floyd" type="button">Floyd</button>
         <button class="mode-chip" data-mode="atkinson" type="button">Atkinson</button>
         <button class="mode-chip" data-mode="bayer" type="button">Bayer</button>
         <button class="mode-chip" data-mode="halftone" type="button">Halftone</button>
-        <button class="mode-chip" data-mode="squiggle" type="button">Squiggle</button>
-        <button class="mode-chip" data-mode="hatch" type="button">Hatch</button>
-        <button class="mode-chip" data-mode="ribbon" type="button">Ribbon</button>
-        <button class="mode-chip" data-mode="worms" type="button">Worms</button>
+        <button class="mode-chip" data-mode="banknote" type="button">Banknote</button>
+        <button class="mode-chip" data-mode="woodcut" type="button">Woodcut</button>
+        <button class="mode-chip" data-mode="stipple" type="button">Stipple</button>
+        <button class="mode-chip" data-mode="fingerprint" type="button">Fingerprint</button>
+        <button class="mode-chip" data-mode="topographic" type="button">Topographic</button>
       </div>
       <div class="control-row"><label for="resolutionRange">Résolution</label><input id="resolutionRange" type="range" min="100" max="576" step="4" value="576"><output id="resolutionValue">576</output></div>
       <div id="basicControls">
@@ -66,10 +66,10 @@
     <label class="settings-field"><span>Langue</span><select id="languageSelect"><option value="fr">Français</option><option value="en">English</option><option value="es">Español</option></select></label>
     <label class="check-row"><input id="showPrinterToggle" type="checkbox" checked><span>Afficher toute la partie impression</span></label>
     <label class="check-row"><input id="showTestToggle" type="checkbox" checked><span>Afficher le bouton de test</span></label>
-    <div class="about-copy"><strong>Dither Printer</strong><p>β3.1 : changement de filtre immédiat et nouveau Halftone.</p></div>
+    <div class="about-copy"><strong>Dither Printer</strong><p>β3.2 : prototypes Banknote, Woodcut, Stipple, Fingerprint et Topographic.</p></div>
   </dialog>
-  <script src="binary-canvas.js?v=20260721-1105"></script>
-  <script src="app-v2.js?v=20260721-1105"></script>
-  <script src="printer.js?v=20260721-1105"></script>
+  <script src="binary-canvas.js?v=20260721-1205"></script>
+  <script src="app-v2.js?v=20260721-1205"></script>
+  <script src="printer.js?v=20260721-1205"></script>
 </body>
 </html>
