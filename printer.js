@@ -95,31 +95,28 @@
     return btoa(binary);
   }
 
+  // StarWebPrintTrader attend une liste d'elements concaténés, sans balise <root>.
+  // Le test reste volontairement ASCII et minimal pour éliminer tout problème
+  // de codepage, d'image ou de commande optionnelle.
   function buildTestRequest() {
-    const timestamp = new Date().toLocaleString('fr-FR');
     return [
-      '<root>',
       '<initialization/>',
       '<alignment position="center"/>',
-      '<text width="2" height="2">DITHER PRINTER\n</text>',
-      '<text>TEST WEBPRNT OK\n</text>',
-      `<text>${timestamp}\n</text>`,
-      '<feed line="2"/>',
-      '<cutpaper feed="true" type="partial"/>',
-      '</root>'
+      '<text codepage="cp437" international="usa" characterspace="0" emphasis="true" invert="false" linespace="32" width="2" height="2" font="font_a" underline="false">TEST PRINTER\n</text>',
+      '<text codepage="cp437" international="usa" characterspace="0" emphasis="false" invert="false" linespace="32" width="1" height="1" font="font_a" underline="false">WEBPRNT TEXT OK\n\n</text>',
+      '<feed line="3"/>',
+      '<cutpaper feed="true" type="partial"/>'
     ].join('');
   }
 
   function buildImageRequest(printCanvas) {
     const raster = canvasToRasterBase64(printCanvas);
     return [
-      '<root>',
       '<initialization/>',
       '<alignment position="center"/>',
-      `<bitImage x="0" y="0" width="${printCanvas.width}" height="${printCanvas.height}">${raster}</bitImage>`,
+      `<bitimage x="0" y="0" width="${printCanvas.width}" height="${printCanvas.height}">${raster}</bitimage>`,
       '<feed line="2"/>',
-      '<cutpaper feed="true" type="partial"/>',
-      '</root>'
+      '<cutpaper feed="true" type="partial"/>'
     ].join('');
   }
 
@@ -187,7 +184,7 @@
     const endpoint = `https://${host}/StarWebPRNT/SendMessage`;
     const payload = buildTraderEnvelope(request);
     const controller = new AbortController();
-    const timeout = window.setTimeout(() => controller.abort(), 30000);
+    const timeout = window.setTimeout(() => controller.abort(), 90000);
 
     try {
       const response = await fetch(endpoint, {
