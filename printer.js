@@ -45,7 +45,11 @@
   new MutationObserver(resetResult).observe(canvas, { attributes: true, attributeFilter: ['width', 'height'] });
 
   function fitForPrinter(source, maxWidth = 576, maxHeight = 2200) {
-    const scale = Math.min(1, maxWidth / source.width, maxHeight / source.height);
+    // « Détail » contrôle le nombre de pixels utilisés pour fabriquer le tramage,
+    // mais le ticket doit toujours occuper toute la largeur de 576 points.
+    const widthScale = maxWidth / source.width;
+    const heightScale = maxHeight / source.height;
+    const scale = Math.min(widthScale, heightScale);
     const output = document.createElement('canvas');
     output.width = Math.max(1, Math.floor(source.width * scale));
     output.height = Math.max(1, Math.floor(source.height * scale));
@@ -75,8 +79,6 @@
     return btoa(binary);
   }
 
-  // Sortie exacte du StarWebPrintBuilder officiel : les caractères de contrôle
-  // sont encodés en séquences littérales \xNN dans les éléments <text>.
   function buildTestElements() {
     return [
       '<initialization/>',
@@ -101,7 +103,6 @@
     return value.replace(/[<>&]/g, char => char === '<' ? '&lt;' : char === '>' ? '&gt;' : '&amp;');
   }
 
-  // Reproduction stricte de StarWebPrintTrader.js v1.2.0.
   function buildTraderBody(elements) {
     const request = `<root>${elements}</root>`;
     return '<StarWebPrint xmlns="http://www.star-m.jp" xmlns:i="http://www.w3.org/2001/XMLSchema-instance">'
