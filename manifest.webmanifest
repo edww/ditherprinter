@@ -1,7 +1,7 @@
 {
   "name": "Dither Printer",
   "short_name": "Dither",
-  "description": "Convertisseur photo noir et blanc pur pour impression thermique.",
+  "description": "Transformez vos photos en noir et blanc pur pour l’impression thermique ou l’export PNG. Convert photos to pure black and white for thermal printing or PNG export.",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#f4f1e8",
