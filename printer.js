@@ -16,22 +16,14 @@
   const storageKey = 'ditherPrinter.starIp';
   ipInput.value = localStorage.getItem(storageKey) || '';
 
-  function normalizedIp() {
-    return ipInput.value.trim().replace(/,/g, '.');
-  }
+  const normalizedIp = () => ipInput.value.trim().replace(/,/g, '.');
+  const hasIp = () => normalizedIp().length > 0;
+  const hasImage = () => canvas.width > 0 && canvas.height > 0;
 
   function saveIp() {
     const value = normalizedIp();
-    if (ipInput.value !== value) ipInput.value = value;
+    ipInput.value = value;
     localStorage.setItem(storageKey, value);
-  }
-
-  function hasIp() {
-    return normalizedIp().length > 0;
-  }
-
-  function hasImage() {
-    return canvas.width > 0 && canvas.height > 0;
   }
 
   function updateButtons() {
@@ -47,46 +39,35 @@
     updateButtons();
   }
 
-  ipInput.addEventListener('input', () => {
-    saveIp();
-    resetResult();
-  });
+  ipInput.addEventListener('input', () => { saveIp(); resetResult(); });
   ipInput.addEventListener('change', saveIp);
   ipInput.addEventListener('blur', saveIp);
-
-  new MutationObserver(resetResult).observe(canvas, {
-    attributes: true,
-    attributeFilter: ['width', 'height']
-  });
+  new MutationObserver(resetResult).observe(canvas, { attributes: true, attributeFilter: ['width', 'height'] });
 
   function fitForPrinter(source, maxWidth = 576, maxHeight = 2200) {
     const scale = Math.min(1, maxWidth / source.width, maxHeight / source.height);
-    const width = Math.max(1, Math.floor(source.width * scale));
-    const height = Math.max(1, Math.floor(source.height * scale));
     const output = document.createElement('canvas');
-    output.width = width;
-    output.height = height;
-    const outputCtx = output.getContext('2d', { willReadFrequently: true });
-    outputCtx.fillStyle = '#fff';
-    outputCtx.fillRect(0, 0, width, height);
-    outputCtx.imageSmoothingEnabled = false;
-    outputCtx.drawImage(source, 0, 0, width, height);
+    output.width = Math.max(1, Math.floor(source.width * scale));
+    output.height = Math.max(1, Math.floor(source.height * scale));
+    const ctx = output.getContext('2d', { willReadFrequently: true });
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, output.width, output.height);
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(source, 0, 0, output.width, output.height);
     return output;
   }
 
   function canvasToRasterBase64(source) {
-    const sourceCtx = source.getContext('2d', { willReadFrequently: true });
-    const { data } = sourceCtx.getImageData(0, 0, source.width, source.height);
+    const { data } = source.getContext('2d', { willReadFrequently: true })
+      .getImageData(0, 0, source.width, source.height);
     const bytesPerRow = Math.ceil(source.width / 8);
     const bytes = new Uint8Array(bytesPerRow * source.height);
-
     for (let y = 0; y < source.height; y++) {
       for (let x = 0; x < source.width; x++) {
         const pixel = (y * source.width + x) * 4;
         if (data[pixel] < 128) bytes[y * bytesPerRow + (x >> 3)] |= 0x80 >> (x & 7);
       }
     }
-
     let binary = '';
     for (let i = 0; i < bytes.length; i += 0x8000) {
       binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
@@ -94,40 +75,42 @@
     return btoa(binary);
   }
 
-  // Requête minimale identique à l'exemple officiel Star :
-  // un document root envoyé directement au endpoint.
-  function buildTestRequest() {
+  // Sortie exacte du StarWebPrintBuilder officiel : les caractères de contrôle
+  // sont encodés en séquences littérales \xNN dans les éléments <text>.
+  function buildTestElements() {
     return [
-      '<?xml version="1.0" encoding="UTF-8"?>',
-      '<root checkedblock="true">',
       '<initialization/>',
       '<alignment position="center"/>',
-      '<text>STAR MICRONICS&#10;</text>',
-      '<text>WEBPRNT TEST OK&#10;</text>',
-      '<feed line="3"/>',
-      '<cutpaper feed="true" type="partial"/>',
-      '</root>'
+      '<text emphasis="true" width="2" height="2">TEST PRINTER\\x0a</text>',
+      '<text>WEBPRNT TEXT OK\\x0a\\x0a</text>',
+      '<cutpaper feed="true" type="partial"/>'
     ].join('');
   }
 
-  function buildImageRequest(printCanvas) {
+  function buildImageElements(printCanvas) {
     const raster = canvasToRasterBase64(printCanvas);
     return [
-      '<?xml version="1.0" encoding="UTF-8"?>',
-      '<root checkedblock="true">',
       '<initialization/>',
       '<alignment position="center"/>',
-      `<bitimage x="0" y="0" width="${printCanvas.width}" height="${printCanvas.height}">${raster}</bitimage>`,
-      '<feed line="2"/>',
-      '<cutpaper feed="true" type="partial"/>',
-      '</root>'
+      `<bitimage width="${printCanvas.width}" height="${printCanvas.height}">${raster}</bitimage>`,
+      '<cutpaper feed="true" type="partial"/>'
     ].join('');
+  }
+
+  function escapeTraderXml(value) {
+    return value.replace(/[<>&]/g, char => char === '<' ? '&lt;' : char === '>' ? '&gt;' : '&amp;');
+  }
+
+  // Reproduction stricte de StarWebPrintTrader.js v1.2.0.
+  function buildTraderBody(elements) {
+    const request = `<root>${elements}</root>`;
+    return '<StarWebPrint xmlns="http://www.star-m.jp" xmlns:i="http://www.w3.org/2001/XMLSchema-instance">'
+      + `<Request>${escapeTraderXml(request)}</Request>`
+      + '</StarWebPrint>';
   }
 
   function firstByLocalName(xml, name) {
-    return xml.getElementsByTagNameNS('*', name)[0]
-      || xml.getElementsByTagName(name)[0]
-      || null;
+    return xml.getElementsByTagNameNS('*', name)[0] || xml.getElementsByTagName(name)[0] || null;
   }
 
   function parsePrinterResponse(text) {
@@ -152,12 +135,11 @@
     debugRaw.textContent = result.innerText || raw || '(réponse vide)';
   }
 
-  async function sendWebPrnt(ip, request) {
+  async function sendWebPrnt(ip, elements) {
     const host = ip.replace(/^https?:\/\//i, '').replace(/\/$/, '');
     const endpoint = `https://${host}/StarWebPRNT/SendMessage`;
     const controller = new AbortController();
-    const timeout = window.setTimeout(() => controller.abort(), 90000);
-
+    const timer = window.setTimeout(() => controller.abort(), 90000);
     try {
       const response = await fetch(endpoint, {
         method: 'POST',
@@ -165,32 +147,29 @@
         cache: 'no-store',
         credentials: 'omit',
         headers: { 'Content-Type': 'text/xml; charset=UTF-8' },
-        body: request,
+        body: buildTraderBody(elements),
         signal: controller.signal
       });
-
       const text = await response.text();
       const result = parsePrinterResponse(text);
       showDebug({ httpStatus: response.status, result, raw: text });
-
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       if (!result.success) throw new Error('Réponse webPRNT sans succès');
       if (result.code && result.code !== '0') throw new Error(`webPRNT code ${result.code}`);
       return result;
     } finally {
-      window.clearTimeout(timeout);
+      window.clearTimeout(timer);
     }
   }
 
-  async function runJob(request, pendingLabel) {
+  async function runJob(elements, pendingLabel) {
     saveIp();
     delete status.dataset.result;
     status.dataset.busy = 'true';
     status.textContent = pendingLabel;
     updateButtons();
-
     try {
-      const result = await sendWebPrnt(normalizedIp(), request);
+      const result = await sendWebPrnt(normalizedIp(), elements);
       status.textContent = result.success ? 'Succès ✓' : 'Échec';
       status.dataset.result = result.success ? 'success' : 'error';
     } catch (error) {
@@ -209,14 +188,14 @@
   testBtn.addEventListener('click', event => {
     event.preventDefault();
     event.stopPropagation();
-    if (hasIp()) runJob(buildTestRequest(), 'Test…');
+    if (hasIp()) runJob(buildTestElements(), 'Test…');
   });
 
   printBtn.addEventListener('click', event => {
     event.preventDefault();
     event.stopPropagation();
     if (!hasIp() || !hasImage()) return;
-    runJob(buildImageRequest(fitForPrinter(canvas)), 'Envoi…');
+    runJob(buildImageElements(fitForPrinter(canvas)), 'Envoi…');
   });
 
   updateButtons();
