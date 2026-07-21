@@ -6,15 +6,15 @@
   <meta name="theme-color" content="#f4f1e8">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="description" content="Transformez vos photos en noir et blanc pur, avec des algorithmes de tramage et des rendus Signal optimisés pour l’impression thermique ou l’export PNG.">
-  <title>Dither Printer β1.1</title>
+  <meta name="description" content="Transformez vos photos en noir et blanc pur avec des tramages classiques, des rendus Field expérimentaux et un mode ASCII.">
+  <title>Dither Printer β1.2</title>
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="style.css?v=20260721-1100">
+  <link rel="stylesheet" href="style.css?v=20260721-1300">
 </head>
 <body>
   <main class="app-shell">
     <header class="topbar">
-      <div><p class="eyebrow" data-i18n="tagline">LABORATOIRE D’IMAGE THERMIQUE</p><h1>Dither Printer <span>β1.1</span></h1></div>
+      <div><p class="eyebrow" data-i18n="tagline">LABORATOIRE D’IMAGE THERMIQUE</p><h1>Dither Printer <span>β1.2</span></h1></div>
       <div class="top-actions"><button id="settingsBtn" class="icon-button" type="button" aria-label="Paramètres">⚙</button><button id="resetBtn" class="icon-button" type="button" aria-label="Réinitialiser">↺</button></div>
     </header>
 
@@ -27,15 +27,14 @@
       <canvas id="previewCanvas" aria-label="Aperçu noir et blanc"></canvas>
       <div id="emptyState" class="empty-state"><div class="empty-icon">◫</div><strong data-i18n="addImage">Ajoute une image</strong><span data-i18n="emptyHelp">Elle sera convertie en noir et blanc pur.</span></div>
       <div class="preview-meta"><span id="modeBadge">SEUIL</span><span id="sizeBadge">— × —</span></div>
-      <div id="renderStatus" class="render-status" hidden></div>
     </section>
 
     <section class="panel compact-panel">
-      <div class="section-heading compact-heading"><h2 data-i18n="renderStyle">Rendu</h2><span id="modeCount">1 / 14</span></div>
+      <div class="section-heading compact-heading"><h2 data-i18n="renderStyle">Rendu</h2><span id="modeCount">1 / 16</span></div>
       <div id="modeList" class="mode-list" role="listbox" aria-label="Modes de rendu">
         <button class="mode-chip active" data-mode="threshold" type="button" data-i18n="threshold">Seuil</button>
         <button class="mode-chip" data-mode="floyd" type="button">Floyd</button><button class="mode-chip" data-mode="atkinson" type="button">Atkinson</button><button class="mode-chip" data-mode="stucki" type="button">Stucki</button><button class="mode-chip" data-mode="sierra" type="button">Sierra</button><button class="mode-chip" data-mode="bayer" type="button">Bayer 4×4</button><button class="mode-chip" data-mode="ordered8" type="button">Ordered 8×8</button><button class="mode-chip" data-mode="bluenoise" type="button">Blue Noise</button><button class="mode-chip" data-mode="riemersma" type="button">Riemersma</button><button class="mode-chip" data-mode="grain" type="button" data-i18n="grain">Grain</button>
-        <button class="mode-chip" data-mode="signalClassic" type="button">Signal Classic</button><button class="mode-chip" data-mode="signalFlow" type="button">Signal Flow</button><button class="mode-chip" data-mode="signal3dFast" type="button">Signal 3D Fast</button><button class="mode-chip" data-mode="signal3dAi" type="button">Signal 3D IA</button>
+        <button class="mode-chip" data-mode="fieldRibbon" type="button">Field Ribbon</button><button class="mode-chip" data-mode="fieldContour" type="button">Field Contour</button><button class="mode-chip" data-mode="fieldTopo" type="button">Field Topo</button><button class="mode-chip" data-mode="fieldWave" type="button">Field Wave</button><button class="mode-chip" data-mode="fieldRelief" type="button">Field Relief</button><button class="mode-chip" data-mode="ascii" type="button">ASCII</button>
       </div>
 
       <div id="basicControls">
@@ -73,11 +72,11 @@
     <label class="settings-field"><span data-i18n="language">Langue</span><select id="languageSelect"><option value="fr">Français</option><option value="en">English</option><option value="es">Español</option></select></label>
     <label class="check-row"><input id="showPrinterToggle" type="checkbox" checked><span data-i18n="showPrinting">Afficher toute la partie impression</span></label>
     <label class="check-row"><input id="showTestToggle" type="checkbox" checked><span data-i18n="showTest">Afficher le bouton de test</span></label>
-    <div class="about-copy"><strong>Dither Printer</strong><p data-i18n="description">Transformez vos photos en noir et blanc pur, avec des algorithmes de tramage et des rendus Signal optimisés pour l’impression thermique ou l’export PNG.</p></div>
+    <div class="about-copy"><strong>Dither Printer</strong><p data-i18n="description">Transformez vos photos en noir et blanc pur avec des tramages classiques, cinq rendus Field expérimentaux et un mode ASCII.</p></div>
   </dialog>
 
-  <script src="binary-canvas.js?v=20260721-1100"></script>
-  <script src="app.js?v=20260721-1100"></script>
-  <script src="printer.js?v=20260721-1100"></script>
+  <script src="binary-canvas.js?v=20260721-1300"></script>
+  <script src="app.js?v=20260721-1300"></script>
+  <script src="printer.js?v=20260721-1300"></script>
 </body>
 </html>
